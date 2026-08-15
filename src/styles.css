@@ -1,0 +1,263 @@
+@import "tailwindcss" source(none);
+@source "./";
+@config "../tailwind.config.js";
+
+/* Television and projector territory, where the Part 3.7 reading sizes apply.
+   Declared here rather than in the config so it sorts after every default
+   breakpoint and wins against sm: and lg: sizes on the same element. */
+@theme {
+  --breakpoint-host: 100rem;
+}
+
+:root {
+  font-family: 'Space Grotesk', Arial, sans-serif;
+  color: #1A1A1A;
+  background: #FFF8ED;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+
+  /* Height reserved for the fixed host control bar, so the countdown dock and
+     the pause overlay can sit above it instead of on top of it. */
+  --host-control-height: 7rem;
+  /* Height of the sticky toggle rail that every screen sits beneath. */
+  --top-rail-height: 5.25rem;
+}
+
+@media (min-width: 1600px) {
+  :root {
+    --host-control-height: 7.5rem;
+  }
+}
+
+.top-rail {
+  min-height: var(--top-rail-height);
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-bottom: 0.5rem;
+}
+
+/* Screens fill what is left of the viewport under the rail. */
+.screen-min-h {
+  min-height: calc(100dvh - var(--top-rail-height));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #FFF8ED;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+}
+
+.safe-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.safe-player-screen p,
+.safe-player-screen h1,
+.safe-player-screen h2,
+.safe-player-screen button,
+.safe-player-screen span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.safe-player-screen {
+  padding-top: max(1.25rem, env(safe-area-inset-top));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+}
+
+/* Vertical centring that still scrolls when the content is taller than the
+   viewport. place-items-center clips the top of tall cards on short phones. */
+.centre-column {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - var(--top-rail-height));
+}
+
+.centre-column > * {
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 100%;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/*
+ * Press model, per Part 3.3: an element compresses into its own shadow on
+ * press. Pointer devices get a primed state (shadow pulls in, outline deepens)
+ * with no movement and no scaling. Touch devices get the press only.
+ */
+.press,
+.press-sm {
+  transition:
+    translate 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .press:hover:not(:disabled):not([aria-disabled='true']):not(.press-held) {
+    box-shadow: 3px 3px 0 0 #0D0D0D;
+    border-color: #0D0D0D;
+  }
+
+  .press-sm:hover:not(:disabled):not([aria-disabled='true']):not(.press-held-sm) {
+    box-shadow: 2px 2px 0 0 #0D0D0D;
+    border-color: #0D0D0D;
+  }
+
+  .press-held:hover,
+  .press-held-sm:hover {
+    border-color: #0D0D0D;
+  }
+}
+
+.press:active:not(:disabled):not([aria-disabled='true']) {
+  translate: 5px 5px;
+  box-shadow: none;
+}
+
+.press-sm:active:not(:disabled):not([aria-disabled='true']) {
+  translate: 3px 3px;
+  box-shadow: none;
+}
+
+/* An element already compressed by its own selected state stays compressed. */
+.press-held {
+  translate: 5px 5px;
+  box-shadow: none;
+}
+
+.press-held-sm {
+  translate: 3px 3px;
+  box-shadow: none;
+}
+
+/* The countdown docks to the bottom of the screen so a long headline can never
+   push it out of view, and never lands on top of the host control bar. */
+.countdown-dock {
+  position: sticky;
+  z-index: 10;
+  bottom: 0;
+  margin-top: 1.5rem;
+  border-top: 3px solid #1A1A1A;
+  background: #FFF8ED;
+  padding-top: 0.75rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.host-screen .countdown-dock,
+.solo-host .countdown-dock {
+  bottom: var(--host-control-height);
+  padding-bottom: 0.75rem;
+}
+
+.solo-host .countdown-dock {
+  bottom: 0;
+}
+
+.host-frame {
+  padding-bottom: calc(var(--host-control-height) + 0.25rem);
+}
+
+.host-control {
+  min-height: var(--host-control-height);
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* The host control bar is operated at arm's length, not read across the room. */
+@media (min-width: 1600px) {
+  .host-control button {
+    font-size: 2rem;
+  }
+}
+
+.dot-grid {
+  background-color: #FFF8ED;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='2' cy='2' r='1' fill='%231A1A1A'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+}
+
+/* The recap renders at a fixed export width so the downloaded PNG is composed
+   the same way on a phone as on a 1080p host, then scales down for preview. */
+.recap-export {
+  width: 1080px;
+  transform-origin: top left;
+}
+
+.ticket-turn {
+  animation: ticket-turn 900ms steps(8, end) infinite;
+}
+
+.game-screen {
+  animation: curtain-pull 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-banner {
+  animation: reveal-rise 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reaction-bubble {
+  animation: reaction-float 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ticket-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes curtain-pull {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    transform: translateY(24px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes reaction-float {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.8) rotate(-4deg);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-42dvh) scale(1.12) rotate(5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
