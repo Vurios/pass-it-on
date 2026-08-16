@@ -3,7 +3,7 @@
   <desc id="desc">Pass It On wordmark with a forwarded speech-bubble icon.</desc>
   <g transform="translate(10 18) scale(1.18)">
     <path d="M34 20h76c17 0 30 13 30 30v44c0 17-13 30-30 30H75l-29 22 6-22H34C17 124 4 111 4 94V50c0-17 13-30 30-30Z" fill="#FFC53D" stroke="#1A1A1A" stroke-width="8" stroke-linejoin="round"/>
-    <path d="M38 60h49V43l38 29-38 29V84H38Z" fill="#2E86AB" stroke="#1A1A1A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M28 60h49V43l38 29-38 29V84H28Z" fill="#2E86AB" stroke="#1A1A1A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
   <text x="220" y="152" fill="#1A1A1A" stroke="#1A1A1A" stroke-width="1.5" paint-order="stroke" font-family="Fredoka, Arial Rounded MT Bold, sans-serif" font-size="126" font-weight="700" letter-spacing="-6">Pass It On</text>
 </svg>
