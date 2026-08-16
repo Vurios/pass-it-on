@@ -232,24 +232,26 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.spinItem
     header = <RoundHeader eyebrow="Round 2: Spin Doctor" title="Spot the Spin" state={state} />
     body = (
-      <Card fill="white" tilt="left" className="mt-4 p-4 sm:mt-6 sm:p-6">
-        <p className="font-display text-xl font-bold leading-relaxed sm:text-2xl lg:text-3xl host:text-4xl">
-          {item.material.phrases.map((phrase, index) => (
-            <span key={phrase} className="safe-copy m-1.5 inline-block max-w-full rounded-[12px] border-chunky border-ink bg-paper px-3 py-1.5 shadow-hard-sm sm:m-2 sm:px-4 sm:py-2">
-              <span className="mr-1.5 text-coral sm:mr-2">{index + 1}</span>{phrase}
-            </span>
-          ))}
-        </p>
-      </Card>
+      <div className="my-auto flex w-full max-w-5xl mx-auto flex-col items-center justify-center py-2 sm:py-4 host:py-6">
+        <Card fill="white" tilt="left" className="w-full max-w-4xl p-5 sm:p-7 host:p-9 shadow-hard">
+          <p className="font-display text-xl font-bold leading-relaxed sm:text-2xl lg:text-3xl host:text-4xl text-center">
+            {item.material.phrases.map((phrase, index) => (
+              <span key={phrase} className="safe-copy m-1.5 inline-block max-w-full rounded-[12px] border-chunky border-ink bg-paper px-3.5 py-2 shadow-hard-sm sm:m-2.5 sm:px-5 sm:py-2.5">
+                <span className="mr-1.5 text-coral sm:mr-2">{index + 1}</span>{phrase}
+              </span>
+            ))}
+          </p>
+        </Card>
+      </div>
     )
   } else if (state.phase === PHASES.CHAIN_QUESTION) {
     const item = state.session.chainItem
     header = <RoundHeader eyebrow="Bonus Round: Order These Oldest First" title={item.material.claim} state={state} />
     body = (
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
+      <div className="my-auto grid w-full max-w-5xl mx-auto gap-3 sm:gap-4 md:grid-cols-2 host:gap-6 py-2 sm:py-3 host:py-5">
         {item.material.retellings.map((retelling, index) => (
-          <Card key={retelling.id} fill="white" className={`${sourceColours[index]} p-3.5 sm:p-4`} tilt={index % 2 ? 'right' : 'left'}>
-            <p className="safe-copy font-display text-lg font-semibold leading-snug sm:text-2xl host:text-4xl">
+          <Card key={retelling.id} fill="white" className={`${sourceColours[index]} p-4 sm:p-5 host:p-6 shadow-hard`} tilt={index % 2 ? 'right' : 'left'}>
+            <p className="safe-copy font-display text-lg font-semibold leading-snug sm:text-2xl host:text-3xl">
               <span className="font-bold">{retelling.label}. </span>{retelling.text}
             </p>
           </Card>
