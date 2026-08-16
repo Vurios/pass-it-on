@@ -22,9 +22,9 @@ export function TopRail({ onBack, backLabel, backAriaLabel = 'Back to Menu', tit
             type="button"
             onClick={onBack}
             aria-label={backAriaLabel}
-            className="press-sm inline-flex h-10 items-center gap-2 rounded-[12px] border-chunky border-ink bg-white px-3 font-display text-sm font-bold text-ink shadow-hard-sm focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink sm:h-11 sm:px-3.5 sm:text-base host:h-14 host:text-3xl"
+            className="press-sm inline-flex h-9 items-center gap-1.5 rounded-[10px] border-chunky border-ink bg-white px-2.5 font-display text-xs font-bold text-ink shadow-hard-sm focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink sm:h-10 sm:px-3 sm:text-sm host:h-12 host:text-2xl"
           >
-            <ArrowLeft size={20} weight="bold" aria-hidden="true" />
+            <ArrowLeft size={18} weight="bold" aria-hidden="true" />
             <span className="hidden sm:inline">{backLabel || 'Back'}</span>
           </button>
         )}

@@ -29,12 +29,12 @@ export function LandingScreen() {
           <BrandMark decorative className="w-9 sm:w-10" />
           <span>Pass It On</span>
         </Link>
-        <div className="flex items-center gap-2.5">
-          <Link to="/how-to-play" aria-label="How to Play" className="press-sm grid h-12 w-12 place-items-center rounded-[12px] border-chunky border-ink bg-sunshine shadow-hard-sm">
-            <BookOpenText size={24} weight="fill" aria-hidden="true" />
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <Link to="/how-to-play" aria-label="How to Play" className="press-sm grid h-9 w-9 place-items-center rounded-[10px] border-chunky border-ink bg-sunshine text-ink shadow-hard-sm sm:h-10 sm:w-10">
+            <BookOpenText size={20} weight="fill" aria-hidden="true" />
           </Link>
-          <Link to="/settings" aria-label="Settings" className="press-sm grid h-12 w-12 place-items-center rounded-[12px] border-chunky border-ink bg-white shadow-hard-sm">
-            <Gear size={24} weight="fill" aria-hidden="true" />
+          <Link to="/settings" aria-label="Settings" className="press-sm grid h-9 w-9 place-items-center rounded-[10px] border-chunky border-ink bg-white text-ink shadow-hard-sm sm:h-10 sm:w-10">
+            <Gear size={20} weight="fill" aria-hidden="true" />
           </Link>
           <SoundToggle muted={sound.muted} onToggle={sound.toggleMuted} />
         </div>
