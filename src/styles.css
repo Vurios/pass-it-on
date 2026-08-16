@@ -182,26 +182,30 @@ a {
   border-color: #0D0D0D;
 }
 
-/* The countdown docks cleanly without pushing parent layouts out of view */
+/* The countdown docks cleanly with reserved fixed height without pushing parent layouts out of view */
 .countdown-dock {
   position: sticky;
   z-index: 10;
   bottom: 0;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   border-top: 3px solid #1A1A1A;
   background: #FFF8ED;
-  padding-top: 0.5rem;
+  padding-top: 0.65rem;
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  min-height: clamp(3rem, 6dvh, 4rem);
+  flex-shrink: 0;
 }
 
 .host-screen .countdown-dock {
   bottom: var(--host-control-height);
   padding-bottom: 0.5rem;
+  min-height: clamp(3.25rem, 6dvh, 4.5rem);
 }
 
 .solo-host .countdown-dock {
   bottom: 0;
   padding-bottom: 0.5rem;
+  min-height: clamp(3rem, 6dvh, 4rem);
 }
 
 .host-frame {

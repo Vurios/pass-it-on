@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useNavigate } from 'react-router-dom'
 import { AvatarBadge } from '../components/AvatarBadge.jsx'
 import { BigButton } from '../components/BigButton.jsx'
+import { BrandMark } from '../components/BrandMark.jsx'
 import { Card } from '../components/Card.jsx'
 import { CountdownBar } from '../components/CountdownBar.jsx'
 import { ErrorState } from '../components/ErrorState.jsx'
@@ -142,20 +143,22 @@ function RevealTally({ state, round, itemId }) {
   const streaks = state.players.filter((player) => (player.streak ?? 0) >= 2)
 
   return (
-    <div className="mt-2.5 flex flex-wrap items-center gap-3 rounded-[14px] border-chunky border-ink bg-white px-4 py-1.5 shadow-hard-sm">
-      <Check className="shrink-0 text-lime" size={26} weight="bold" aria-hidden="true" />
-      <p className="font-display text-base font-bold sm:text-lg host:text-4xl">
-        {caught.length} of {active.length} caught it
-      </p>
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
+    <div className="mt-3 flex flex-wrap items-center gap-3 rounded-[14px] border-chunky border-ink bg-white px-4 py-2 shadow-hard-sm sm:mt-3.5">
+      <div className="flex shrink-0 items-center gap-2">
+        <Check className="shrink-0 text-lime" size={26} weight="bold" aria-hidden="true" />
+        <p className="font-display text-base font-bold sm:text-lg host:text-4xl">
+          {caught.length} of {active.length} caught it
+        </p>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2.5">
         {caught.slice(0, 8).map((player) => (
-          <span key={player.id} className="flex min-w-0 items-center gap-1.5">
+          <span key={player.id} className="flex min-w-0 shrink-0 items-center gap-1.5">
             <AvatarBadge avatar={player.avatar} size={24} />
             <span className="max-w-32 truncate font-display text-sm font-bold host:max-w-64 host:text-3xl">{player.name}</span>
           </span>
         ))}
         {streaks.length > 0 && (
-          <span className="streak-pop inline-flex items-center gap-1 rounded-full border-2 border-ink bg-sunshine px-2 py-0.5 font-display text-xs font-bold shadow-hard-sm">
+          <span className="streak-pop inline-flex shrink-0 items-center gap-1 rounded-full border-2 border-ink bg-sunshine px-2.5 py-0.5 font-display text-xs font-bold shadow-hard-sm">
             <Fire size={18} weight="fill" className="text-coral" aria-hidden="true" />
             <span>Streak: {streaks.map((p) => `${p.name} (${p.streak})`).join(', ')}</span>
           </span>
@@ -169,7 +172,7 @@ function HostFrame({ children, timer }) {
   return (
     <main className="host-screen dot-grid screen-min-h flex flex-col justify-between bg-cream px-3 pt-2 text-ink sm:px-6 sm:pt-3">
       <div className="game-screen host-frame mx-auto flex h-full w-full max-w-[1700px] flex-1 flex-col justify-between">
-        <div className="flex-1 overflow-hidden">{children}</div>
+        <div className="flex-1 overflow-hidden pb-2 sm:pb-3">{children}</div>
         {timer}
       </div>
     </main>
@@ -257,10 +260,12 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.renderItems[state.renderIndex]
     header = <RoundHeader eyebrow={`Round 3: Real or Rendered · ${state.renderIndex + 1}/${state.session.renderItems.length}`} title="Real or Rendered?" state={state} />
     body = (
-      <div className="mx-auto mt-3 max-w-4xl space-y-3 sm:mt-4">
-        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto" />
-        <Card fill="white" tilt="right" className="p-4 text-center sm:p-6">
-          <p className="safe-copy font-display text-xl font-bold leading-tight sm:text-3xl lg:text-4xl host:text-6xl">{item.material.prompt}</p>
+      <div className="mx-auto mt-2 flex max-w-4xl flex-col items-center justify-between gap-2.5 pb-2 sm:mt-3 sm:gap-3.5">
+        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
+        <Card fill="white" tilt="right" className="w-full shrink-0 p-3 text-center sm:p-4 host:p-6">
+          <p className="safe-copy line-clamp-3 overflow-hidden text-ellipsis font-display text-lg font-bold leading-snug sm:text-2xl lg:text-3xl host:text-5xl host:leading-tight max-h-[4.5rem] sm:max-h-[6rem] host:max-h-[9rem]">
+            {item.material.prompt}
+          </p>
         </Card>
       </div>
     )
@@ -304,11 +309,11 @@ function HostReveal({ state, onNext, onEndBonus }) {
     const winnerIndex = item.material.sources.indexOf(winner)
     content = (
       <>
-        <Card fill="white" className={`${sourceColours[winnerIndex]} mt-2.5 p-3.5 outline-6 outline-sunshine sm:mt-3 sm:p-4`} tilt="left">
+        <Card fill="white" className={`${sourceColours[winnerIndex]} mt-3 p-3.5 outline-6 outline-sunshine sm:mt-4 sm:p-4`} tilt="left">
           <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{winner.label}: {winner.source}</p>
           <p className="safe-copy mt-1.5 font-display text-lg font-semibold leading-tight sm:text-xl host:text-3xl">{winner.headline}</p>
         </Card>
-        <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
+        <div className="mt-3 grid gap-2.5 sm:mt-3.5 sm:grid-cols-3">
           {item.material.sources.filter((source) => source.id !== item.correctAnswer).map((source, index) => (
             <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[12px] border-chunky border-ink px-3 py-2 font-display text-sm font-bold opacity-45 shadow-hard-sm sm:text-base host:text-3xl`}>
               {source.label}: {source.source}
@@ -320,7 +325,7 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else if (state.phase === PHASES.SPIN_REVEAL) {
     item = state.session.spinItem; round = 'spin'
     content = (
-      <Card fill="white" className="mt-3 p-3.5 sm:p-4">
+      <Card fill="white" className="mt-3 p-3.5 sm:mt-4 sm:p-4">
         <div className="flex flex-wrap gap-2">
           {item.material.phrases.map((phrase, index) => (
             <span key={phrase} className={`${item.correctAnswer.includes(index) ? 'bg-coral text-white' : 'bg-paper opacity-55'} safe-copy max-w-full rounded-[12px] border-chunky border-ink px-3 py-1.5 font-display text-base font-bold sm:text-xl host:text-4xl`}>
@@ -334,14 +339,14 @@ function HostReveal({ state, onNext, onEndBonus }) {
     item = state.session.chainItem; round = 'chain'
     const ordered = item.correctAnswer.map((id) => item.material.retellings.find((retelling) => retelling.id === id))
     content = (
-      <ol className="mt-3 grid gap-2.5 lg:grid-cols-2 host:grid-cols-4">
+      <ol className="mt-3 grid gap-2.5 sm:mt-4 lg:grid-cols-2 host:grid-cols-4">
         {ordered.map((retelling, index) => (
           <li key={retelling.id}>
-            <Card fill="white" className={`${index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral' : ''} p-3`} tilt={index % 2 ? 'right' : 'left'}>
+            <Card fill="white" className={`${index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral' : ''} p-3.5 sm:p-4`} tilt={index % 2 ? 'right' : 'left'}>
               <p className="safe-copy font-display text-base font-bold leading-tight sm:text-xl host:text-3xl">
                 <span className="text-ink/55">{index + 1}. </span>{retelling.text}
               </p>
-              <p className="safe-copy mt-1 font-body text-xs font-semibold leading-snug sm:text-sm host:text-2xl">{retelling.note}</p>
+              <p className="safe-copy mt-1.5 font-body text-xs font-semibold leading-snug sm:text-sm host:text-2xl">{retelling.note}</p>
             </Card>
           </li>
         ))}
@@ -350,11 +355,11 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else {
     item = state.session.renderItems[state.renderIndex]; round = 'render'
     content = (
-      <div className="mx-auto mt-3 max-w-4xl space-y-3 sm:mt-4">
-        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto" />
-        <Card fill="white" className="p-4 text-center sm:p-6">
+      <div className="mx-auto mt-2 max-w-4xl space-y-2.5 sm:mt-3 sm:space-y-3.5">
+        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
+        <Card fill="white" className="p-3.5 text-center sm:p-4.5 host:p-6">
           <p className="font-display text-2xl font-bold capitalize sm:text-4xl host:text-6xl">{item.correctAnswer}</p>
-          <p className="safe-copy mt-2 font-body text-base font-semibold sm:text-lg host:text-3xl">{item.material.prompt}</p>
+          <p className="safe-copy line-clamp-3 mt-1.5 font-body text-sm font-semibold leading-snug sm:text-base host:text-3xl max-h-[4rem] sm:max-h-[5rem] host:max-h-[8rem] overflow-hidden text-ellipsis">{item.material.prompt}</p>
         </Card>
       </div>
     )
@@ -379,9 +384,20 @@ function HostReveal({ state, onNext, onEndBonus }) {
         </p>
       )}
       {content}
-      <Card fill="white" tilt="left" className="reveal-banner mt-3 p-3 host:flex host:flex-wrap host:items-center host:gap-4 sm:p-4">
-        <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold sm:text-lg host:text-3xl">{item.explanation}</p>
-        {item.fabricated && <FabricatedStamp className="mt-2 sm:mt-0" />}
+      <Card fill="white" tilt="left" className="reveal-banner mt-3.5 p-3.5 sm:mt-4 sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 host:gap-6">
+          <div className="flex shrink-0 items-center justify-center w-12 sm:w-14 host:w-20 max-w-[3.5rem] sm:max-w-[4rem] host:max-w-[5rem]">
+            <BrandMark decorative className="w-full h-auto" />
+          </div>
+          <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-3xl">
+            {item.explanation}
+          </p>
+          {item.fabricated && (
+            <div className="shrink-0 self-start sm:self-center">
+              <FabricatedStamp className="mt-0" />
+            </div>
+          )}
+        </div>
       </Card>
       {state.phase !== PHASES.CHAIN_REVEAL && <RevealTally state={state} round={round} itemId={item.id} />}
     </HostFrame>
