@@ -15,6 +15,7 @@ import { RecapCard } from '../components/RecapCard.jsx'
 import { SoundToggle } from '../components/SoundToggle.jsx'
 import { TopRail } from '../components/TopRail.jsx'
 import { ReadAloudToggle } from '../components/ReadAloudToggle.jsx'
+import { RenderVisualClue } from '../components/RenderVisualClue.jsx'
 import { createGameSession } from '../content/gameSessions.js'
 import { SOUND_CUES } from '../audio/soundSystem.js'
 import { useSessionSound } from '../audio/useSessionSound.js'
@@ -256,9 +257,12 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.renderItems[state.renderIndex]
     header = <RoundHeader eyebrow={`Round 3: Real or Rendered · ${state.renderIndex + 1}/${state.session.renderItems.length}`} title="Real or Rendered?" state={state} />
     body = (
-      <Card fill="white" tilt="right" className="mx-auto mt-4 max-w-5xl p-6 text-center sm:mt-6 sm:p-8">
-        <p className="safe-copy font-display text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl host:text-7xl">{item.material.prompt}</p>
-      </Card>
+      <div className="mx-auto mt-3 max-w-4xl space-y-3 sm:mt-4">
+        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto" />
+        <Card fill="white" tilt="right" className="p-4 text-center sm:p-6">
+          <p className="safe-copy font-display text-xl font-bold leading-tight sm:text-3xl lg:text-4xl host:text-6xl">{item.material.prompt}</p>
+        </Card>
+      </div>
     )
   }
 
@@ -346,10 +350,13 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else {
     item = state.session.renderItems[state.renderIndex]; round = 'render'
     content = (
-      <Card fill="white" className="mx-auto mt-4 max-w-5xl p-6 text-center sm:p-8">
-        <p className="font-display text-3xl font-bold capitalize sm:text-5xl host:text-7xl">{item.correctAnswer}</p>
-        <p className="safe-copy mt-2.5 font-body text-lg font-semibold sm:text-xl host:text-4xl">{item.material.prompt}</p>
-      </Card>
+      <div className="mx-auto mt-3 max-w-4xl space-y-3 sm:mt-4">
+        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto" />
+        <Card fill="white" className="p-4 text-center sm:p-6">
+          <p className="font-display text-2xl font-bold capitalize sm:text-4xl host:text-6xl">{item.correctAnswer}</p>
+          <p className="safe-copy mt-2 font-body text-base font-semibold sm:text-lg host:text-3xl">{item.material.prompt}</p>
+        </Card>
+      </div>
     )
   }
 

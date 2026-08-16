@@ -22,6 +22,7 @@ import { LeaveConfirmModal } from '../components/LeaveConfirmModal.jsx'
 import { RecapCard } from '../components/RecapCard.jsx'
 import { SoundToggle } from '../components/SoundToggle.jsx'
 import { TopRail } from '../components/TopRail.jsx'
+import { RenderVisualClue } from '../components/RenderVisualClue.jsx'
 import { SOUND_CUES } from '../audio/soundSystem.js'
 import { useSessionSound } from '../audio/useSessionSound.js'
 import { createGameSession } from '../content/gameSessions.js'
@@ -339,7 +340,6 @@ function SpinReveal({ state, dispatch }) {
 
 function RenderQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock }) {
   const item = state.session.renderItems[state.renderIndex]
-  const ItemIcon = item.material.kind === 'text' ? Article : ImageSquare
 
   return (
     <GameLayout timer={<QuestionTimer state={state} onComplete={onTimeExpired} onSecondChange={onSecondChange} />}>
@@ -351,19 +351,20 @@ function RenderQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock
           detail={`Item ${state.renderIndex + 1} of ${state.session.renderItems.length}`}
         />
         
-        <div className="my-auto mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-5 sm:gap-6">
-          <Card fill="white" tilt={state.renderIndex % 2 ? 'right' : 'left'} className="w-full p-6 text-center shadow-hard sm:p-8">
-            <div className="mx-auto grid h-14 w-14 place-items-center rounded-[14px] border-chunky border-ink bg-sunshine shadow-hard-sm">
-              <ItemIcon size={36} weight="fill" aria-hidden="true" />
-            </div>
-            <p className="safe-copy mt-4 font-display text-xl font-bold leading-snug sm:text-2xl lg:text-3xl host:text-5xl">{item.material.prompt}</p>
+        <div className="my-auto mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-4 sm:gap-5">
+          <RenderVisualClue item={item} className="w-full" />
+
+          <Card fill="white" tilt={state.renderIndex % 2 ? 'right' : 'left'} className="w-full p-3.5 text-center shadow-hard sm:p-5">
+            <p className="safe-copy font-display text-base font-bold leading-snug sm:text-xl host:text-3xl">
+              {item.material.prompt}
+            </p>
           </Card>
 
-          <div className="grid w-full grid-cols-2 gap-4 max-w-xl">
-            <BigButton variant="ocean" className="!h-14 sm:!h-16 text-2xl sm:text-3xl font-bold text-white shadow-hard" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'real', now: Date.now() }) }}>
+          <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 max-w-lg">
+            <BigButton variant="ocean" className="!h-13 sm:!h-15 text-2xl sm:text-3xl font-bold text-white shadow-hard" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'real', now: Date.now() }) }}>
               Real
             </BigButton>
-            <BigButton variant="coral" className="!h-14 sm:!h-16 text-2xl sm:text-3xl font-bold text-white shadow-hard" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'rendered', now: Date.now() }) }}>
+            <BigButton variant="coral" className="!h-13 sm:!h-15 text-2xl sm:text-3xl font-bold text-white shadow-hard" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'rendered', now: Date.now() }) }}>
               Rendered
             </BigButton>
           </div>
@@ -386,15 +387,17 @@ function RenderReveal({ state }) {
           streak={state.player.streak}
           detail={`Item ${state.renderIndex + 1} of ${state.session.renderItems.length}`}
         />
-        <div className="my-auto mx-auto flex w-full max-w-3xl flex-col items-center justify-center gap-3">
-          <Card fill="white" tilt="right" className={`${correct ? '!bg-lime' : '!bg-sunshine'} w-full p-6 text-center shadow-hard sm:p-8`}>
-            {correct ? <Check className="mx-auto" size={48} weight="bold" aria-hidden="true" /> : <X className="mx-auto" size={48} weight="bold" aria-hidden="true" />}
-            <p className="mt-2 font-display text-3xl font-bold capitalize sm:text-4xl host:text-6xl">{item.correctAnswer}</p>
-            <h2 className="safe-copy mt-2.5 font-display text-lg font-bold sm:text-xl host:text-3xl">The tell: {item.technique}</h2>
-            <p className="safe-copy mt-2 font-body text-sm font-medium leading-relaxed sm:text-base host:text-2xl">{item.explanation}</p>
-            {item.fabricated && <FabricatedStamp className="mt-3" />}
+        <div className="my-auto mx-auto flex w-full max-w-2xl flex-col items-center justify-center gap-3 sm:gap-4">
+          <RenderVisualClue item={item} className="w-full" />
+          
+          <Card fill="white" tilt="right" className={`${correct ? '!bg-lime' : '!bg-sunshine'} w-full p-4 text-center shadow-hard sm:p-6`}>
+            {correct ? <Check className="mx-auto" size={40} weight="bold" aria-hidden="true" /> : <X className="mx-auto" size={40} weight="bold" aria-hidden="true" />}
+            <p className="mt-1 font-display text-2xl font-bold capitalize sm:text-3xl host:text-5xl">{item.correctAnswer}</p>
+            <h2 className="safe-copy mt-2 font-display text-base font-bold sm:text-lg host:text-2xl">The tell: {item.technique}</h2>
+            <p className="safe-copy mt-1.5 font-body text-xs font-medium leading-relaxed sm:text-sm host:text-xl">{item.explanation}</p>
+            {item.fabricated && <FabricatedStamp className="mt-2.5" />}
           </Card>
-          <p className="text-center font-display text-sm font-bold sm:text-base host:text-2xl">Next one coming right up.</p>
+          <p className="text-center font-display text-xs font-bold sm:text-sm host:text-xl">Next clue coming right up.</p>
         </div>
       </div>
     </GameLayout>

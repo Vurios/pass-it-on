@@ -11,6 +11,7 @@ import { LeaveConfirmModal } from '../components/LeaveConfirmModal.jsx'
 import { LoadingState } from '../components/LoadingState.jsx'
 import { SoundToggle } from '../components/SoundToggle.jsx'
 import { TopRail } from '../components/TopRail.jsx'
+import { RenderVisualClue } from '../components/RenderVisualClue.jsx'
 import { SOUND_CUES } from '../audio/soundSystem.js'
 import { useSessionSound } from '../audio/useSessionSound.js'
 import { validatePlayerName } from '../content/profanity/index.js'
@@ -227,6 +228,10 @@ function SpinQuestion({ snapshot, playerId, clockOffset, selections, setSelectio
 function RenderQuestion({ snapshot, playerId, clockOffset, pending, submit, onSecondChange }) {
   const player = snapshot.players.find((entry) => entry.id === playerId)
   const locked = Boolean(player?.hasAnswered || pending)
+  const item = {
+    id: snapshot.publicQuestion?.id,
+    material: snapshot.publicQuestion?.material,
+  }
 
   return (
     <PlayerFrame snapshot={snapshot}>
@@ -236,9 +241,7 @@ function RenderQuestion({ snapshot, playerId, clockOffset, pending, submit, onSe
             Round 3: {snapshot.publicQuestion.itemNumber}/{snapshot.publicQuestion.itemTotal}
           </p>
           <h1 className="font-display text-2xl font-bold sm:text-3xl">Real or Rendered?</h1>
-          <p className="safe-copy mt-1.5 line-clamp-3 rounded-[12px] border-chunky border-ink bg-white p-2.5 font-body text-xs font-semibold sm:text-sm">
-            {snapshot.publicQuestion.material.prompt}
-          </p>
+          <RenderVisualClue item={item} className="mt-2" />
         </div>
         <div className="my-auto grid grid-rows-2 gap-2.5 sm:gap-3">
           <BigButton
