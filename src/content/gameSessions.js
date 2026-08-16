@@ -17,7 +17,8 @@ function shuffle(array) {
 }
 
 export function createGameSession(options = {}) {
-  const { randomized = false, caseSeed } = options
+  const opts = typeof options === 'string' ? { locale: options } : options
+  const { randomized = true, caseSeed } = opts
   const oddPool = englishContent.rounds.oddSourceOut
   const spinPool = englishContent.rounds.spinDoctor
   const renderPool = englishContent.rounds.realOrRendered
@@ -28,15 +29,16 @@ export function createGameSession(options = {}) {
   let renderItems = renderPool.slice(0, 5)
   let chainItem = chainPool[0]
 
-  if (randomized) {
+  if (typeof caseSeed === 'number') {
+    oddItem = oddPool[Math.abs(caseSeed) % oddPool.length]
+    spinItem = spinPool[Math.abs(caseSeed) % spinPool.length]
+    chainItem = chainPool[Math.abs(caseSeed) % chainPool.length]
+    renderItems = renderPool.slice(0, 5)
+  } else if (randomized) {
     oddItem = pickRandom(oddPool) || oddPool[0]
     spinItem = pickRandom(spinPool) || spinPool[0]
     renderItems = shuffle(renderPool).slice(0, 5)
     chainItem = pickRandom(chainPool) || chainPool[0]
-  } else if (typeof caseSeed === 'number') {
-    oddItem = oddPool[caseSeed % oddPool.length]
-    spinItem = spinPool[caseSeed % spinPool.length]
-    chainItem = chainPool[caseSeed % chainPool.length]
   }
 
   return {

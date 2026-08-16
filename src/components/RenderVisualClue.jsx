@@ -41,12 +41,11 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
       {/* Clue Graphic Area */}
       <div className={`relative flex items-center justify-center p-3 sm:p-4 transition-all duration-300 ${zoomed ? 'bg-amber-50/50 scale-105' : 'bg-paper'}`}>
         
-        {/* Market Sign Glitch */}
+        {/* 1. Market Sign Glitch */}
         {id === 'render-market-01' && (
           <div className="flex w-full max-w-sm flex-col items-center gap-2">
             <div className="relative flex w-full flex-col items-center rounded-[12px] border-2 border-ink bg-amber-100 p-3 shadow-hard-sm">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Fresh Produce Market · Stall 14</div>
-              {/* Garbled Sign Board */}
               <div className={`relative mt-2 rounded-[8px] border-2 border-ink bg-amber-700 px-4 py-2 text-center text-amber-100 shadow-inner ${zoomed ? 'ring-4 ring-coral ring-offset-2' : ''}`}>
                 <span className="font-mono text-xl sm:text-2xl font-black tracking-widest text-amber-200 select-none">
                   Ж§⟁∯ ꙰꙱ℵ ƍ∿
@@ -65,7 +64,7 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
           </div>
         )}
 
-        {/* Council Notice with Reference Number */}
+        {/* 2. Council Notice with Reference Number */}
         {id === 'render-notice-02' && (
           <div className="flex w-full max-w-md flex-col rounded-[12px] border-2 border-ink bg-white p-3 shadow-hard-sm text-left">
             <div className="flex items-center justify-between border-b border-ink/20 pb-1.5">
@@ -90,7 +89,7 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
           </div>
         )}
 
-        {/* Station Crowd Repeating Scarf Pattern */}
+        {/* 3. Station Crowd Repeating Scarf Pattern */}
         {id === 'render-station-03' && (
           <div className="flex w-full max-w-sm flex-col items-center gap-2">
             <div className="relative flex w-full flex-col rounded-[12px] border-2 border-ink bg-slate-100 p-3 shadow-hard-sm">
@@ -101,7 +100,6 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
                     <div className="h-7 w-7 rounded-full border-2 border-ink bg-amber-200 text-center font-display text-[10px] font-bold leading-6">
                       P{personIndex}
                     </div>
-                    {/* Exact identical synthetic zigzag scarf */}
                     <div className="mt-1.5 w-full rounded border border-ink bg-gradient-to-r from-coral via-sunshine to-ocean py-0.5 text-[9px] font-black tracking-tighter text-white">
                       ▲▼▲▼▲
                     </div>
@@ -118,14 +116,13 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
           </div>
         )}
 
-        {/* Anatomy Glitch: 6 Fingers & Merging Jewelry */}
+        {/* 4. Anatomy Glitch: 6 Fingers & Merging Jewelry */}
         {id === 'render-portrait-04' && (
           <div className="flex w-full max-w-sm flex-col items-center gap-2">
             <div className="relative flex w-full flex-col items-center rounded-[12px] border-2 border-ink bg-orange-50 p-3 shadow-hard-sm">
               <div className="text-[10px] font-bold uppercase tracking-wider text-orange-800">Studio Portrait Close-up</div>
               <div className="mt-2 flex items-center justify-center gap-4">
                 <div className="relative flex h-20 w-28 items-center justify-center rounded-[10px] border-2 border-ink bg-amber-100 p-2 shadow-inner">
-                  {/* Hand representation with 6 distinct finger pegs */}
                   <div className="flex items-end gap-1">
                     {[1, 2, 3, 4, 5, 6].map((finger) => (
                       <div
@@ -135,7 +132,6 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
                       />
                     ))}
                   </div>
-                  {/* Melted bracelet artifact */}
                   <div className="absolute -bottom-1 h-3 w-16 rounded border-2 border-ink bg-gradient-to-r from-sunshine via-amber-200 to-transparent" />
                 </div>
               </div>
@@ -149,7 +145,7 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
           </div>
         )}
 
-        {/* Verified Dataset Report */}
+        {/* 5. Verified Dataset Report */}
         {id === 'render-report-05' && (
           <div className="flex w-full max-w-md flex-col rounded-[12px] border-2 border-ink bg-white p-3 shadow-hard-sm text-left">
             <div className="flex items-center justify-between border-b border-ink/20 pb-1.5">
@@ -178,8 +174,182 @@ export function RenderVisualClue({ item, onInspect, className = '' }) {
           </div>
         )}
 
+        {/* 6. Academic Press Release */}
+        {id === 'render-press-06' && (
+          <div className="flex w-full max-w-md flex-col rounded-[12px] border-2 border-ink bg-white p-3 shadow-hard-sm text-left">
+            <div className="flex items-center justify-between border-b border-ink/20 pb-1.5">
+              <div className="font-display text-xs font-bold uppercase tracking-wider text-ocean">
+                Stanford Materials Lab · Press Release
+              </div>
+              <span className="rounded border border-ink bg-cream px-1.5 py-0.5 font-mono text-[10px] font-bold text-ink">
+                GRANT #NSF-4819
+              </span>
+            </div>
+            <div className="mt-2 font-body text-xs font-medium text-ink/90">
+              <p className="font-bold text-ink">Lead Authors: Dr. Elena Vance & Prof. Marcus Chen</p>
+              <p className="mt-1 text-[11px] text-ink/75">Published in Nature Materials (Vol 31, pp. 104-118)</p>
+              <p className="mt-1 text-[11px] text-ink/75">Funding: National Science Foundation / Open Data Repository</p>
+            </div>
+            {zoomed && (
+              <div className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-lime-700 bg-lime/20 px-2 py-0.5 text-[10px] font-bold text-emerald-900">
+                <ShieldCheck size={14} weight="fill" className="text-emerald-700" />
+                <span>Named researchers, specific volume citation, and verified funding grant</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 7. Scrambled Clock Tower Dial */}
+        {id === 'render-clock-07' && (
+          <div className="flex w-full max-w-sm flex-col items-center gap-2">
+            <div className="relative flex w-full flex-col items-center rounded-[12px] border-2 border-ink bg-slate-100 p-3 shadow-hard-sm">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Town Square Clock Tower</div>
+              <div className={`relative mt-2 grid h-24 w-24 place-items-center rounded-full border-4 border-ink bg-amber-100 shadow-inner ${zoomed ? 'ring-4 ring-coral' : ''}`}>
+                <div className="grid grid-cols-3 gap-1 font-mono text-[10px] font-black text-amber-950">
+                  <span>1</span><span>14</span><span>3</span>
+                  <span>15</span><span>⏱</span><span>9</span>
+                  <span>2</span><span>8</span><span>7</span>
+                </div>
+              </div>
+              {zoomed && (
+                <div className="mt-2 inline-flex items-center justify-center gap-1 rounded-[6px] border border-coral bg-coral/10 px-2 py-0.5 text-[10px] font-bold text-coral">
+                  <WarningCircle size={14} weight="fill" />
+                  <span>Clock dial numbers 14 and 15 scrambled out of order</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 8. Verified Register Receipt */}
+        {id === 'render-receipt-08' && (
+          <div className="flex w-full max-w-xs flex-col rounded-[12px] border-2 border-ink bg-white p-3 font-mono text-xs shadow-hard-sm text-left">
+            <div className="border-b border-dashed border-ink pb-1 text-center font-bold">
+              VALLEY MARKET #104
+            </div>
+            <div className="mt-1.5 space-y-0.5 text-[11px]">
+              <div className="flex justify-between"><span>OAT MILK 1L</span><span>$4.50</span></div>
+              <div className="flex justify-between"><span>SOURDOUGH</span><span>$3.20</span></div>
+              <div className="flex justify-between"><span>OLIVE OIL</span><span>$12.00</span></div>
+              <div className="border-t border-ink pt-1 flex justify-between font-bold"><span>SUBTOTAL</span><span>$19.70</span></div>
+              <div className="flex justify-between text-ink/75"><span>TAX 6%</span><span>$1.18</span></div>
+              <div className="flex justify-between font-bold text-ocean"><span>TOTAL</span><span>$20.88</span></div>
+            </div>
+            <div className="mt-1.5 text-[10px] text-ink/60 text-center">CASHIER #44 · 12:44 PM</div>
+            {zoomed && (
+              <div className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-lime-700 bg-lime/20 px-2 py-0.5 text-[10px] font-bold text-emerald-900">
+                <ShieldCheck size={14} weight="fill" className="text-emerald-700" />
+                <span>Exact 6% tax arithmetic and POS cashier metadata audit trail</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 9. Inconsistent Reflection Physics */}
+        {id === 'render-reflection-09' && (
+          <div className="flex w-full max-w-sm flex-col items-center gap-2">
+            <div className="relative flex w-full flex-col items-center rounded-[12px] border-2 border-ink bg-slate-200 p-3 shadow-hard-sm">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Urban Street Puddle Reflection</div>
+              <div className="mt-2 flex w-full justify-around gap-2">
+                <div className="flex flex-col items-center rounded border border-ink bg-white p-2 text-[10px] font-bold">
+                  <span>🏢 Building</span>
+                  <div className="h-10 w-8 border border-ink bg-blue-100 mt-1" />
+                </div>
+                <div className={`flex flex-col items-center rounded border border-ink bg-blue-200 p-2 text-[10px] font-bold ${zoomed ? 'ring-2 ring-coral' : ''}`}>
+                  <span>💧 Reflection</span>
+                  <div className="h-10 w-8 border border-ink bg-amber-800 text-white mt-1 text-center leading-10">⛪</div>
+                </div>
+              </div>
+              {zoomed && (
+                <div className="mt-2 inline-flex items-center justify-center gap-1 rounded-[6px] border border-coral bg-coral/10 px-2 py-0.5 text-[10px] font-bold text-coral">
+                  <WarningCircle size={14} weight="fill" />
+                  <span>Glass office tower reflects as a Gothic church spire</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 10. Meteorological Scientific Radar */}
+        {id === 'render-weather-10' && (
+          <div className="flex w-full max-w-md flex-col rounded-[12px] border-2 border-ink bg-white p-3 shadow-hard-sm text-left">
+            <div className="flex items-center justify-between border-b border-ink/20 pb-1.5">
+              <div className="font-display text-xs font-bold uppercase tracking-wider text-ocean">
+                National Weather Service · Doppler Radar
+              </div>
+              <span className="rounded border border-ink bg-cream px-1.5 py-0.5 font-mono text-[10px] font-bold text-ink">
+                BUOY #41002
+              </span>
+            </div>
+            <div className="mt-2 space-y-1 font-mono text-[11px] text-ink">
+              <div className="flex justify-between border-b border-ink/10 pb-0.5 font-bold">
+                <span>Barometric: 1016.4 hPa</span>
+                <span>UTC: 14:30Z</span>
+              </div>
+              <p className="font-body text-[11px] text-ink/80 pt-1">
+                Radar Beam Elev: 0.5° · Dual-Polarization Refl (Z_DR = 1.2 dB)
+              </p>
+            </div>
+            {zoomed && (
+              <div className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-lime-700 bg-lime/20 px-2 py-0.5 text-[10px] font-bold text-emerald-900">
+                <ShieldCheck size={14} weight="fill" className="text-emerald-700" />
+                <span>Standardized scientific coordinate notation, buoy ID, and UTC timestamp</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 11. Floating Ring & Two Thumbs */}
+        {id === 'render-hands-11' && (
+          <div className="flex w-full max-w-sm flex-col items-center gap-2">
+            <div className="relative flex w-full flex-col items-center rounded-[12px] border-2 border-ink bg-orange-50 p-3 shadow-hard-sm">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-orange-800">Ceremony Photo Macro</div>
+              <div className="mt-2 flex items-center justify-center gap-3">
+                <div className="relative flex h-16 w-24 items-center justify-center rounded border-2 border-ink bg-amber-100">
+                  <div className="flex gap-1 items-end">
+                    <span className="text-xs font-bold">👍👍</span>
+                    <span className="text-xs">✋</span>
+                  </div>
+                  <div className={`absolute -top-3 h-4 w-4 rounded-full border-2 border-ink bg-sunshine ${zoomed ? 'ring-2 ring-coral' : ''}`} title="Floating Ring" />
+                </div>
+              </div>
+              {zoomed && (
+                <div className="mt-2 inline-flex items-center justify-center gap-1 rounded-[6px] border border-coral bg-coral/10 px-2 py-0.5 text-[10px] font-bold text-coral">
+                  <WarningCircle size={14} weight="fill" />
+                  <span>Two thumbs on left hand + wedding ring levitating in air</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 12. Museum Archival Accession Record */}
+        {id === 'render-museum-12' && (
+          <div className="flex w-full max-w-md flex-col rounded-[12px] border-2 border-ink bg-white p-3 shadow-hard-sm text-left">
+            <div className="flex items-center justify-between border-b border-ink/20 pb-1.5">
+              <div className="font-display text-xs font-bold uppercase tracking-wider text-ocean">
+                National Gallery · Accession Catalog
+              </div>
+              <span className="rounded border border-ink bg-cream px-1.5 py-0.5 font-mono text-[10px] font-bold text-ink">
+                CAT #MET-2026-1049
+              </span>
+            </div>
+            <div className="mt-2 font-body text-xs font-medium text-ink/90">
+              <p className="font-bold text-ink">Provenance: Gift of Evelyn Wright (1984)</p>
+              <p className="mt-1 text-[11px] text-ink/75">Medium: Glazed Terracotta · Dimensions: 24.5 × 12.0 cm</p>
+              <p className="mt-1 text-[11px] text-ink/75">Conservation: Restored 2004, Dept of Antiquities</p>
+            </div>
+            {zoomed && (
+              <div className="mt-2 inline-flex items-center gap-1 rounded-[6px] border border-lime-700 bg-lime/20 px-2 py-0.5 text-[10px] font-bold text-emerald-900">
+                <ShieldCheck size={14} weight="fill" className="text-emerald-700" />
+                <span>Physical dimensions in cm, donor provenance history, and accession ID</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Fallback for other items */}
-        {!['render-market-01', 'render-notice-02', 'render-station-03', 'render-portrait-04', 'render-report-05'].includes(id) && (
+        {!['render-market-01', 'render-notice-02', 'render-station-03', 'render-portrait-04', 'render-report-05', 'render-press-06', 'render-clock-07', 'render-receipt-08', 'render-reflection-09', 'render-weather-10', 'render-hands-11', 'render-museum-12'].includes(id) && (
           <div className="p-3 text-center font-body text-xs font-medium text-ink/75">
             {item?.material?.prompt}
           </div>
