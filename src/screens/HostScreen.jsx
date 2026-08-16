@@ -536,10 +536,13 @@ function MidGameLeaderboardFlash({ title, players, onComplete }) {
     : biggestGain?.answers.at(-1)?.score > 0
       ? `Biggest jump: ${biggestGain.name} +${biggestGain.answers.at(-1).score}.`
       : 'Scores are still wide open.'
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
+
   useEffect(() => {
-    const timer = window.setTimeout(onComplete, 3500)
+    const timer = window.setTimeout(() => onCompleteRef.current?.(), 3500)
     return () => window.clearTimeout(timer)
-  }, [onComplete])
+  }, [])
 
   return (
     <div className="fixed inset-0 z-40 grid place-items-center bg-ink/75 p-4" role="dialog" aria-label="Current Standings">
