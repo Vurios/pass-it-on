@@ -9,8 +9,10 @@ export function BrandMark({ className, title = 'Pass It On logo', decorative = f
       aria-hidden={decorative ? 'true' : undefined}
       aria-label={decorative ? undefined : title}
     >
-      <path d="M34 20h76c17 0 30 13 30 30v44c0 17-13 30-30 30H75l-29 22 6-22H34C17 124 4 111 4 94V50c0-17 13-30 30-30Z" fill="#FFC53D" stroke="#1A1A1A" strokeWidth="8" strokeLinejoin="round" />
-      <path d="M28 60h49V43l38 29-38 29V84H28Z" fill="#2E86AB" stroke="#1A1A1A" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+      <g transform="translate(9, 5)">
+        <path d="M34 20h76c17 0 30 13 30 30v44c0 17-13 30-30 30H75l-29 22 6-22H34C17 124 4 111 4 94V50c0-17 13-30 30-30Z" fill="#FFC53D" stroke="#1A1A1A" strokeWidth="8" strokeLinejoin="round" />
+        <path d="M28 60h49V43l38 29-38 29V84H28Z" fill="#2E86AB" stroke="#1A1A1A" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+      </g>
     </svg>
   )
 }
