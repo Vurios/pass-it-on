@@ -143,20 +143,20 @@ a {
 }
 
 /*
- * Press model: an element compresses into its hard offset shadow on press.
- * Tactile, immediate neo-brutalist interaction.
+ * Static tactile interaction model: visual feedback without position displacement / jump.
  */
 .press,
 .press-sm {
   transition:
-    translate 140ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 140ms ease;
+    box-shadow 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease,
+    opacity 120ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .press:hover:not(:disabled):not([aria-disabled='true']):not(.press-held) {
-    box-shadow: 3px 3px 0 0 #0D0D0D;
+    box-shadow: 4px 4px 0 0 #0D0D0D;
     border-color: #0D0D0D;
   }
 
@@ -171,25 +171,15 @@ a {
   }
 }
 
-.press:active:not(:disabled):not([aria-disabled='true']) {
-  translate: 4px 4px;
-  box-shadow: none;
-}
-
+.press:active:not(:disabled):not([aria-disabled='true']),
 .press-sm:active:not(:disabled):not([aria-disabled='true']) {
-  translate: 2px 2px;
-  box-shadow: none;
+  opacity: 0.88;
 }
 
-/* An element already compressed by its selected state */
-.press-held {
-  translate: 4px 4px;
-  box-shadow: none;
-}
-
+/* An element in its selected state */
+.press-held,
 .press-held-sm {
-  translate: 2px 2px;
-  box-shadow: none;
+  border-color: #0D0D0D;
 }
 
 /* The countdown docks cleanly without pushing parent layouts out of view */
