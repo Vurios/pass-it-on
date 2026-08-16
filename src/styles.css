@@ -199,7 +199,7 @@ a {
 .host-screen .countdown-dock {
   bottom: var(--host-control-height);
   padding-bottom: 0.5rem;
-  min-height: clamp(3.25rem, 6dvh, 4.5rem);
+  min-height: clamp(2.75rem, 5dvh, 3.5rem);
 }
 
 .solo-host .countdown-dock {

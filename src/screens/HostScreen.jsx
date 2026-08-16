@@ -50,7 +50,7 @@ function ReactionBubbles({ reactions }) {
 function HostToast({ message }) {
   if (!message) return null
   return (
-    <div className="toast-callout pointer-events-none fixed left-1/2 top-[calc(var(--top-rail-height)+0.75rem)] z-40 -translate-x-1/2 rounded-[14px] border-chunky border-ink bg-sunshine px-4 py-2 font-display text-base font-bold shadow-hard sm:text-lg" role="status">
+    <div className="toast-callout pointer-events-none fixed right-6 top-[calc(var(--top-rail-height)+0.5rem)] z-40 rounded-[14px] border-chunky border-ink bg-sunshine px-4 py-2 font-display text-base font-bold shadow-hard sm:text-lg host:text-xl" role="status">
       {message}
     </div>
   )
@@ -172,8 +172,8 @@ function HostFrame({ children, timer }) {
   return (
     <main className="host-screen dot-grid screen-min-h flex flex-col justify-between bg-cream px-3 pt-2 text-ink sm:px-6 sm:pt-3">
       <div className="game-screen host-frame mx-auto flex h-full w-full max-w-[1700px] flex-1 flex-col justify-between">
-        <div className="flex-1 overflow-hidden pb-2 sm:pb-3">{children}</div>
-        {timer}
+        <div className="flex-1 overflow-hidden pb-2">{children}</div>
+        {timer && <div className="mt-auto shrink-0 pb-1">{timer}</div>}
       </div>
     </main>
   )
@@ -222,7 +222,7 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
       <div className="mt-3 grid gap-3 sm:mt-4 md:grid-cols-2 md:gap-4">
         {item.material.sources.map((source, index) => (
           <Card key={source.id} fill="white" className={`${sourceColours[index]} min-h-28 p-3.5 sm:min-h-36 sm:p-5`} tilt={index % 2 ? 'right' : 'left'}>
-            <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{source.label}: {source.source}</p>
+            <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-3xl">{source.label}: {source.source}</p>
             <p className="safe-copy mt-2 line-clamp-3 font-display text-base font-semibold leading-snug sm:text-xl host:text-3xl">{source.headline}</p>
           </Card>
         ))}
@@ -233,7 +233,7 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     header = <RoundHeader eyebrow="Round 2: Spin Doctor" title="Spot the Spin" state={state} />
     body = (
       <Card fill="white" tilt="left" className="mt-4 p-4 sm:mt-6 sm:p-6">
-        <p className="font-display text-xl font-bold leading-relaxed sm:text-3xl lg:text-4xl host:text-6xl">
+        <p className="font-display text-xl font-bold leading-relaxed sm:text-2xl lg:text-3xl host:text-4xl">
           {item.material.phrases.map((phrase, index) => (
             <span key={phrase} className="safe-copy m-1.5 inline-block max-w-full rounded-[12px] border-chunky border-ink bg-paper px-3 py-1.5 shadow-hard-sm sm:m-2 sm:px-4 sm:py-2">
               <span className="mr-1.5 text-coral sm:mr-2">{index + 1}</span>{phrase}
@@ -263,7 +263,7 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
       <div className="mx-auto mt-2 flex max-w-4xl flex-col items-center justify-between gap-2.5 pb-2 sm:mt-3 sm:gap-3.5">
         <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
         <Card fill="white" tilt="right" className="w-full shrink-0 p-3 text-center sm:p-4 host:p-6">
-          <p className="safe-copy line-clamp-3 overflow-hidden text-ellipsis font-display text-lg font-bold leading-snug sm:text-2xl lg:text-3xl host:text-5xl host:leading-tight max-h-[4.5rem] sm:max-h-[6rem] host:max-h-[9rem]">
+          <p className="safe-copy line-clamp-3 overflow-hidden text-ellipsis font-display text-lg font-bold leading-snug sm:text-2xl lg:text-3xl host:text-4xl host:leading-snug max-h-[4.5rem] sm:max-h-[6rem] host:max-h-[7.5rem]">
             {item.material.prompt}
           </p>
         </Card>
@@ -311,11 +311,11 @@ function HostReveal({ state, onNext, onEndBonus }) {
       <>
         <Card fill="white" className={`${sourceColours[winnerIndex]} mt-3 p-3.5 outline-6 outline-sunshine sm:mt-4 sm:p-4`} tilt="left">
           <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{winner.label}: {winner.source}</p>
-          <p className="safe-copy mt-1.5 font-display text-lg font-semibold leading-tight sm:text-xl host:text-3xl">{winner.headline}</p>
+          <p className="safe-copy mt-1.5 font-display text-lg font-semibold leading-tight sm:text-xl host:text-2xl">{winner.headline}</p>
         </Card>
         <div className="mt-3 grid gap-2.5 sm:mt-3.5 sm:grid-cols-3">
           {item.material.sources.filter((source) => source.id !== item.correctAnswer).map((source, index) => (
-            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[12px] border-chunky border-ink px-3 py-2 font-display text-sm font-bold opacity-45 shadow-hard-sm sm:text-base host:text-3xl`}>
+            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[12px] border-chunky border-ink px-3 py-2 font-display text-sm font-bold opacity-45 shadow-hard-sm sm:text-base host:text-lg`}>
               {source.label}: {source.source}
             </div>
           ))}
@@ -328,7 +328,7 @@ function HostReveal({ state, onNext, onEndBonus }) {
       <Card fill="white" className="mt-3 p-3.5 sm:mt-4 sm:p-4">
         <div className="flex flex-wrap gap-2">
           {item.material.phrases.map((phrase, index) => (
-            <span key={phrase} className={`${item.correctAnswer.includes(index) ? 'bg-coral text-white' : 'bg-paper opacity-55'} safe-copy max-w-full rounded-[12px] border-chunky border-ink px-3 py-1.5 font-display text-base font-bold sm:text-xl host:text-4xl`}>
+            <span key={phrase} className={`${item.correctAnswer.includes(index) ? 'bg-coral text-white' : 'bg-paper opacity-55'} safe-copy max-w-full rounded-[12px] border-chunky border-ink px-3 py-1.5 font-display text-base font-bold sm:text-lg host:text-2xl`}>
               {phrase}
             </span>
           ))}
@@ -358,8 +358,8 @@ function HostReveal({ state, onNext, onEndBonus }) {
       <div className="mx-auto mt-2 max-w-4xl space-y-2.5 sm:mt-3 sm:space-y-3.5">
         <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
         <Card fill="white" className="p-3.5 text-center sm:p-4.5 host:p-6">
-          <p className="font-display text-2xl font-bold capitalize sm:text-4xl host:text-6xl">{item.correctAnswer}</p>
-          <p className="safe-copy line-clamp-3 mt-1.5 font-body text-sm font-semibold leading-snug sm:text-base host:text-3xl max-h-[4rem] sm:max-h-[5rem] host:max-h-[8rem] overflow-hidden text-ellipsis">{item.material.prompt}</p>
+          <p className="font-display text-2xl font-bold capitalize sm:text-3xl host:text-5xl">{item.correctAnswer}</p>
+          <p className="safe-copy line-clamp-3 mt-1.5 font-body text-sm font-semibold leading-snug sm:text-base host:text-2xl max-h-[4rem] sm:max-h-[5rem] host:max-h-[6.5rem] overflow-hidden text-ellipsis">{item.material.prompt}</p>
         </Card>
       </div>
     )
@@ -389,7 +389,7 @@ function HostReveal({ state, onNext, onEndBonus }) {
           <div className="flex shrink-0 items-center justify-center w-12 sm:w-14 host:w-20 max-w-[3.5rem] sm:max-w-[4rem] host:max-w-[5rem]">
             <BrandMark decorative className="w-full h-auto" />
           </div>
-          <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-3xl">
+          <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-2xl">
             {item.explanation}
           </p>
           {item.fabricated && (
