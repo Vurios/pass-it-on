@@ -11,6 +11,12 @@
 
 <br />
 
+<a href="https://pass-it-on-three.vercel.app">
+  <img src="public/brand/vercel-qr.svg" alt="Scan QR Code to play Pass It On on Vercel" width="190" />
+</a>
+
+<br />
+
 **A fast-paced, living-room party game about what your family shares—and what they pass on.**  
 In ~12 minutes, a household or classroom learns to spot manipulation techniques without being lectured.
 
@@ -34,16 +40,6 @@ In ~12 minutes, a household or classroom learns to spot manipulation techniques 
 ## 🎯 Gameplay & Rounds
 
 A game session consists of three fast-paced core rounds plus an optional bonus round:
-
-```mermaid
-graph LR
-    A[Lobby] --> B[Round 1: Odd Source Out]
-    B --> C[Round 2: Spin Doctor]
-    C --> D[Round 3: Real or Rendered]
-    D --> E[Podium & Titles]
-    E --> F[Family Recap Card]
-    F -.-> G[Bonus: Chain of Custody]
-```
 
 ### 🔍 Round 1: Odd Source Out
 Four sources report the same news event with different credibility profiles (academic hedge, sensational blog, neutral journalism, or subtle satire).
@@ -107,7 +103,7 @@ Generates a downloadable, high-resolution PNG summarizing every manipulation tec
 ```text
 pass-it-on/
 ├── public/                     # Static assets, brand SVGs, favicons
-│   ├── brand/                  # Logo lockup, icons, social previews
+│   ├── brand/                  # Logo lockup, icons, Vercel QR code, social previews
 │   └── favicon.svg
 ├── src/
 │   ├── audio/                  # Audio engine, sound cues, host narration synthesis
