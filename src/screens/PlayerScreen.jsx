@@ -212,8 +212,8 @@ function SpinQuestion({ snapshot, playerId, clockOffset, selections, setSelectio
           ))}
         </div>
         <BigButton
-          variant="coral"
-          className="!h-11 !min-h-0 text-base sm:!h-13 sm:text-lg"
+          variant="sunshine"
+          className="!h-12 !min-h-0 text-base font-bold text-ink shadow-hard sm:!h-13 sm:text-lg"
           disabled={locked || selections.length === 0 || snapshot.paused}
           onClick={() => submit('spin', { selections }, 'spin')}
         >
