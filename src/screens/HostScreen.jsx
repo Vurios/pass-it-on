@@ -172,7 +172,7 @@ function HostFrame({ children, timer }) {
   return (
     <main className="host-screen dot-grid screen-min-h flex flex-col justify-between bg-cream px-3 pt-2 text-ink sm:px-6 sm:pt-3">
       <div className="game-screen host-frame mx-auto flex h-full w-full max-w-[1700px] flex-1 flex-col justify-between">
-        <div className="flex-1 overflow-hidden pb-2">{children}</div>
+        <div className="flex-1 flex flex-col justify-between overflow-hidden pb-2">{children}</div>
         {timer && <div className="mt-auto shrink-0 pb-1">{timer}</div>}
       </div>
     </main>
@@ -219,11 +219,11 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.oddItem
     header = <RoundHeader eyebrow="Round 1: Odd Source Out" title={item.material.event} state={state} />
     body = (
-      <div className="mt-3 grid gap-3 sm:mt-4 md:grid-cols-2 md:gap-4">
+      <div className="my-auto grid gap-3.5 sm:gap-4 md:grid-cols-2 md:gap-5 host:gap-7 py-2 sm:py-3 host:py-5">
         {item.material.sources.map((source, index) => (
-          <Card key={source.id} fill="white" className={`${sourceColours[index]} min-h-28 p-3.5 sm:min-h-36 sm:p-5`} tilt={index % 2 ? 'right' : 'left'}>
+          <Card key={source.id} fill="white" className={`${sourceColours[index]} min-h-32 p-4 sm:min-h-36 sm:p-5 host:min-h-44 host:p-7 shadow-hard`} tilt={index % 2 ? 'right' : 'left'}>
             <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-3xl">{source.label}: {source.source}</p>
-            <p className="safe-copy mt-2 line-clamp-3 font-display text-base font-semibold leading-snug sm:text-xl host:text-3xl">{source.headline}</p>
+            <p className="safe-copy mt-2 line-clamp-3 font-display text-base font-semibold leading-normal sm:text-xl host:text-2xl">{source.headline}</p>
           </Card>
         ))}
       </div>
@@ -260,10 +260,10 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.renderItems[state.renderIndex]
     header = <RoundHeader eyebrow={`Round 3: Real or Rendered · ${state.renderIndex + 1}/${state.session.renderItems.length}`} title="Real or Rendered?" state={state} />
     body = (
-      <div className="mx-auto mt-2 flex max-w-4xl flex-col items-center justify-between gap-2.5 pb-2 sm:mt-3 sm:gap-3.5">
-        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
-        <Card fill="white" tilt="right" className="w-full shrink-0 p-3.5 text-center sm:p-5 host:p-6">
-          <p className="safe-copy font-display text-lg font-bold leading-snug sm:text-2xl host:text-3xl host:leading-normal">
+      <div className="my-auto flex w-full max-w-5xl mx-auto flex-col items-center justify-center gap-4 sm:gap-5 host:gap-6 py-2 sm:py-3 host:py-5">
+        <RenderVisualClue item={item} className="w-full max-w-3xl host:max-w-4xl mx-auto shrink-0 shadow-hard" />
+        <Card fill="white" tilt="right" className="w-full max-w-3xl host:max-w-4xl shrink-0 p-4 sm:p-6 host:p-7 text-center shadow-hard">
+          <p className="safe-copy font-display text-lg font-bold leading-snug sm:text-2xl host:text-3xl host:leading-relaxed">
             {item.material.prompt}
           </p>
         </Card>
@@ -309,13 +309,13 @@ function HostReveal({ state, onNext, onEndBonus }) {
     const winnerIndex = item.material.sources.indexOf(winner)
     content = (
       <>
-        <Card fill="white" className={`${sourceColours[winnerIndex]} mt-3 p-3.5 outline-6 outline-sunshine sm:mt-4 sm:p-4`} tilt="left">
-          <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{winner.label}: {winner.source}</p>
-          <p className="safe-copy mt-1.5 font-display text-lg font-semibold leading-tight sm:text-xl host:text-2xl">{winner.headline}</p>
+        <Card fill="white" className={`${sourceColours[winnerIndex]} p-4 sm:p-5 host:p-6 outline-6 outline-sunshine shadow-hard`} tilt="left">
+          <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-3xl">{winner.label}: {winner.source}</p>
+          <p className="safe-copy mt-2 font-display text-lg font-semibold leading-normal sm:text-xl host:text-2xl">{winner.headline}</p>
         </Card>
-        <div className="mt-3 grid gap-2.5 sm:mt-3.5 sm:grid-cols-3">
+        <div className="grid gap-3 sm:gap-3.5 sm:grid-cols-3">
           {item.material.sources.filter((source) => source.id !== item.correctAnswer).map((source, index) => (
-            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[12px] border-chunky border-ink px-3 py-2 font-display text-sm font-bold opacity-45 shadow-hard-sm sm:text-base host:text-lg`}>
+            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} rounded-[12px] border-chunky border-ink px-3.5 py-2.5 host:px-4.5 host:py-3 font-display text-sm font-bold opacity-55 shadow-hard-sm sm:text-base host:text-lg`}>
               {source.label}: {source.source}
             </div>
           ))}
@@ -355,11 +355,11 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else {
     item = state.session.renderItems[state.renderIndex]; round = 'render'
     content = (
-      <div className="mx-auto mt-2 max-w-4xl space-y-2.5 sm:mt-3 sm:space-y-3.5">
-        <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
-        <Card fill="white" className="p-3.5 text-center sm:p-4.5 host:p-6">
+      <div className="w-full max-w-5xl mx-auto space-y-3.5 sm:space-y-4 host:space-y-5">
+        <RenderVisualClue item={item} className="w-full max-w-3xl host:max-w-4xl mx-auto shrink-0 shadow-hard" />
+        <Card fill="white" className="w-full max-w-3xl host:max-w-4xl mx-auto p-4 sm:p-5 host:p-6 text-center shadow-hard">
           <p className="font-display text-2xl font-bold capitalize sm:text-3xl host:text-5xl">{item.correctAnswer}</p>
-          <p className="safe-copy mt-2 font-body text-sm font-semibold leading-relaxed sm:text-base host:text-2xl">{item.material.prompt}</p>
+          <p className="safe-copy mt-2 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-2xl">{item.material.prompt}</p>
         </Card>
       </div>
     )
@@ -379,27 +379,33 @@ function HostReveal({ state, onNext, onEndBonus }) {
     <HostFrame>
       <RoundHeader eyebrow={null} title={item.technique} state={state} action={action} />
       {nobodyAnswered && (
-        <p className="mt-2 rounded-[12px] border-chunky border-ink bg-sunshine px-4 py-2 text-center font-display text-xl font-bold shadow-hard-sm sm:text-2xl host:text-4xl">
+        <p className="mt-2 rounded-[12px] border-chunky border-ink bg-sunshine px-4 py-2 text-center font-display text-xl font-bold shadow-hard-sm sm:text-2xl host:text-3xl">
           Time's up! Here is the answer.
         </p>
       )}
-      {content}
-      <Card fill="white" tilt="left" className="reveal-banner mt-3.5 p-3.5 sm:mt-4 sm:p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 host:gap-6">
-          <div className="flex shrink-0 items-center justify-center w-12 sm:w-14 host:w-20 max-w-[3.5rem] sm:max-w-[4rem] host:max-w-[5rem]">
-            <BrandMark decorative className="w-full h-auto" />
-          </div>
-          <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-2xl">
-            {item.explanation}
-          </p>
-          {item.fabricated && (
-            <div className="shrink-0 self-start sm:self-center">
-              <FabricatedStamp className="mt-0" />
+      <div className="my-auto flex flex-col justify-center gap-3.5 sm:gap-4.5 host:gap-6 py-2 sm:py-3 host:py-5">
+        {content}
+        <Card fill="white" tilt="left" className="reveal-banner p-4 sm:p-5 host:p-6 shadow-hard">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 host:gap-6">
+            <div className="flex shrink-0 items-center justify-center w-12 sm:w-14 host:w-16 max-w-[3.5rem] sm:max-w-[4rem]">
+              <BrandMark decorative className="w-full h-auto" />
             </div>
-          )}
+            <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold leading-relaxed sm:text-lg host:text-2xl">
+              {item.explanation}
+            </p>
+            {item.fabricated && (
+              <div className="shrink-0 self-start sm:self-center">
+                <FabricatedStamp className="mt-0" />
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+      {state.phase !== PHASES.CHAIN_REVEAL && (
+        <div className="mt-auto pt-1">
+          <RevealTally state={state} round={round} itemId={item.id} />
         </div>
-      </Card>
-      {state.phase !== PHASES.CHAIN_REVEAL && <RevealTally state={state} round={round} itemId={item.id} />}
+      )}
     </HostFrame>
   )
 }
