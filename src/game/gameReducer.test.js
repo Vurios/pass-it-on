@@ -271,17 +271,17 @@ test('the final item reaches scoreboard when nobody answers', () => {
   assert.equal(state.players.every((player) => player.roundScores.render === 0), true)
 })
 
-test('language session can change only in the lobby', () => {
-  const filipinoSession = { ...session, locale: 'fil' }
+test('game session can change only in the lobby', () => {
+  const customSession = { ...session, locale: 'en-custom' }
   let state = createMultiplayerGameState(session)
-  state = gameReducer(state, { type: 'SET_SESSION', session: filipinoSession })
-  assert.equal(state.session.locale, 'fil')
+  state = gameReducer(state, { type: 'SET_SESSION', session: customSession })
+  assert.equal(state.session.locale, 'en-custom')
   for (const id of ['one', 'two', 'three']) {
     state = gameReducer(state, { type: 'ADD_PLAYER', player: { id, name: id, avatar: 'cat' }, now: 0 })
   }
   state = gameReducer(state, { type: 'START_GAME', now: 1_000 })
   state = gameReducer(state, { type: 'SET_SESSION', session })
-  assert.equal(state.session.locale, 'fil')
+  assert.equal(state.session.locale, 'en-custom')
 })
 
 const chainItem = {

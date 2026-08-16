@@ -1,15 +1,13 @@
 import englishContent from './en.js'
-import filipinoContent from './fil.js'
 
-export const gameContentByLocale = Object.freeze({ en: englishContent, fil: filipinoContent })
+export const gameContent = englishContent
 
-export function createGameSession(locale = 'en') {
-  const content = gameContentByLocale[locale] ?? englishContent
+export function createGameSession() {
   return {
-    locale: content.locale,
-    oddItem: content.rounds.oddSourceOut[0],
-    spinItem: content.rounds.spinDoctor[0],
-    renderItems: content.rounds.realOrRendered.slice(0, 5),
-    chainItem: content.rounds.chainOfCustody[0],
+    locale: englishContent.locale,
+    oddItem: englishContent.rounds.oddSourceOut[0],
+    spinItem: englishContent.rounds.spinDoctor[0],
+    renderItems: englishContent.rounds.realOrRendered.slice(0, 5),
+    chainItem: englishContent.rounds.chainOfCustody[0],
   }
 }

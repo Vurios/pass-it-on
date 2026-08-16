@@ -54,7 +54,7 @@ function HostToast({ message }) {
   )
 }
 
-function HostLobby({ roomCode, players, locale, onLocaleChange, onStart }) {
+function HostLobby({ roomCode, players, onStart }) {
   const joinUrl = useMemo(() => `${window.location.origin}/player?room=${roomCode}`, [roomCode])
   const activeCount = players.filter((player) => player.connected).length
   const canStart = activeCount >= 1 && activeCount <= 8
@@ -82,24 +82,6 @@ function HostLobby({ roomCode, players, locale, onLocaleChange, onStart }) {
           <p className="mt-3 max-w-xl font-body text-sm font-semibold sm:text-lg host:text-4xl">
             Scan with a phone. No account needed.
           </p>
-          <div className="mt-3 grid w-full max-w-md grid-cols-2 gap-3 sm:mt-4" aria-label="Game Language">
-            <BigButton
-              className="!min-h-11 text-sm host:text-4xl sm:!min-h-12 sm:text-base"
-              variant={locale === 'en' ? 'sunshine' : 'ocean'}
-              aria-pressed={locale === 'en'}
-              onClick={() => onLocaleChange('en')}
-            >
-              English
-            </BigButton>
-            <BigButton
-              className="!min-h-11 text-sm host:text-4xl sm:!min-h-12 sm:text-base"
-              variant={locale === 'fil' ? 'sunshine' : 'ocean'}
-              aria-pressed={locale === 'fil'}
-              onClick={() => onLocaleChange('fil')}
-            >
-              Filipino
-            </BigButton>
-          </div>
         </section>
 
         <Card fill="white" tilt="right" className="flex max-h-[calc(100dvh-var(--top-rail-height)-2rem)] flex-col p-4 sm:p-6 lg:min-h-[60dvh]">
@@ -134,7 +116,7 @@ function HostLobby({ roomCode, players, locale, onLocaleChange, onStart }) {
                   : 'Start Round 1'}
             </BigButton>
             <p className="mt-2 text-center font-body text-xs font-bold sm:text-sm host:text-3xl">
-              One to eight players. Starting alone asks for confirmation.
+              2 to 8 members. Starting alone asks for confirmation.
             </p>
           </div>
         </Card>
@@ -571,7 +553,6 @@ export function HostScreen() {
   const [roomCode, setRoomCode] = useState('')
   const [networkError, setNetworkError] = useState('')
   const [showRecap, setShowRecap] = useState(false)
-  const [locale, setLocale] = useState('en')
   const [reactionBubbles, setReactionBubbles] = useState([])
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   const [showSmallLobbyConfirm, setShowSmallLobbyConfirm] = useState(false)
@@ -704,10 +685,6 @@ export function HostScreen() {
   const onChainTimeExpired = useCallback(() => dispatch({ type: 'CHAIN_TIME_EXPIRED', now: Date.now() }), [])
   const playAgain = () => { setShowRecap(false); celebrationKey.current = ''; dispatch({ type: 'PLAY_AGAIN' }) }
   const startBonus = () => { setShowRecap(false); celebrationKey.current = ''; dispatch({ type: 'START_BONUS', now: Date.now() }) }
-  const selectLocale = (nextLocale) => {
-    setLocale(nextLocale)
-    dispatch({ type: 'SET_SESSION', session: createGameSession(nextLocale) })
-  }
 
   const handleNextWithFlash = () => {
     if (state.phase === PHASES.ODD_REVEAL) {
@@ -752,7 +729,7 @@ export function HostScreen() {
   if (networkError) return <>{hostToggles}<ErrorState host message="The room connection stopped. Check your Supabase settings and try again." actionLabel="Try Again" onAction={() => window.location.reload()} /></>
   if (!connection || !roomCode) return <>{hostToggles}<LoadingState host message="Claiming a room code..." /></>
   if (showRecap) return <>{hostToggles}<RecapCard state={state} onBack={() => setShowRecap(false)} onPlayAgain={playAgain} onMenu={() => navigate('/')} onBonus={bonusPlayed ? undefined : startBonus} /></>
-  if (state.phase === PHASES.LOBBY) return <>{hostToggles}<HostLobby roomCode={roomCode} players={state.players} locale={locale} onLocaleChange={selectLocale} onStart={startFromLobby} /><LeaveConfirmModal open={showLeaveConfirm} onConfirm={handleConfirmLeave} onCancel={() => setShowLeaveConfirm(false)} title="Close Host Room?" message="Are you sure you want to close this game lobby and return to the main menu?" /><LeaveConfirmModal open={showSmallLobbyConfirm} onConfirm={() => { setShowSmallLobbyConfirm(false); dispatch({ type: 'START_GAME', now: Date.now() }) }} onCancel={() => setShowSmallLobbyConfirm(false)} title="Only 1 Player Joined" message="Only 1 player joined. Start anyway?" confirmLabel="Start Anyway" cancelLabel="Wait for More" confirmVariant="sunshine" icon={UsersThree} /></>
+  if (state.phase === PHASES.LOBBY) return <>{hostToggles}<HostLobby roomCode={roomCode} players={state.players} onStart={startFromLobby} /><LeaveConfirmModal open={showLeaveConfirm} onConfirm={handleConfirmLeave} onCancel={() => setShowLeaveConfirm(false)} title="Close Host Room?" message="Are you sure you want to close this game lobby and return to the main menu?" /><LeaveConfirmModal open={showSmallLobbyConfirm} onConfirm={() => { setShowSmallLobbyConfirm(false); dispatch({ type: 'START_GAME', now: Date.now() }) }} onCancel={() => setShowSmallLobbyConfirm(false)} title="Only 1 Player Joined" message="Only 1 player joined. Start anyway?" confirmLabel="Start Anyway" cancelLabel="Wait for More" confirmVariant="sunshine" icon={UsersThree} /></>
   if (state.phase === PHASES.SCOREBOARD) return <>{hostToggles}<Scoreboard state={state} onRecap={() => setShowRecap(true)} onPlayAgain={playAgain} /><LeaveConfirmModal open={showLeaveConfirm} onConfirm={handleConfirmLeave} onCancel={() => setShowLeaveConfirm(false)} title="Leave Game?" message="Are you sure you want to return to the main menu?" /></>
 
   const screen = questionPhases.has(state.phase)
