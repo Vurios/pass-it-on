@@ -138,7 +138,7 @@ function WaitingRoom({ snapshot, playerId, roomCode }) {
 function PlayerFrame({ snapshot, children }) {
   return (
     <main className="safe-player-screen dot-grid flex screen-min-h flex-col justify-between bg-cream text-ink">
-      <div className="mx-auto flex h-full w-full max-w-md flex-1 flex-col justify-between overflow-hidden py-1.5">
+      <div className="mx-auto flex h-full w-full max-w-md flex-1 flex-col justify-between overflow-hidden p-3 pb-5 sm:p-4 sm:pb-6">
         <div className="flex-1 overflow-hidden">{children}</div>
         {snapshot.paused && <PausedOverlay />}
       </div>

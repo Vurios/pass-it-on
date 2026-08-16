@@ -187,11 +187,11 @@ a {
   position: sticky;
   z-index: 10;
   bottom: 0;
-  margin-top: auto;
+  margin-top: 0.5rem;
   border-top: 3px solid #1A1A1A;
   background: #FFF8ED;
-  padding-top: 0.35rem;
-  padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
+  padding-top: 0.5rem;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
 .host-screen .countdown-dock {
