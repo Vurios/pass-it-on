@@ -262,8 +262,8 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     body = (
       <div className="mx-auto mt-2 flex max-w-4xl flex-col items-center justify-between gap-2.5 pb-2 sm:mt-3 sm:gap-3.5">
         <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
-        <Card fill="white" tilt="right" className="w-full shrink-0 p-3 text-center sm:p-4 host:p-6">
-          <p className="safe-copy line-clamp-3 overflow-hidden text-ellipsis font-display text-lg font-bold leading-snug sm:text-2xl lg:text-3xl host:text-4xl host:leading-snug max-h-[4.5rem] sm:max-h-[6rem] host:max-h-[7.5rem]">
+        <Card fill="white" tilt="right" className="w-full shrink-0 p-3.5 text-center sm:p-5 host:p-6">
+          <p className="safe-copy font-display text-lg font-bold leading-snug sm:text-2xl host:text-3xl host:leading-normal">
             {item.material.prompt}
           </p>
         </Card>
@@ -359,7 +359,7 @@ function HostReveal({ state, onNext, onEndBonus }) {
         <RenderVisualClue item={item} className="w-full max-w-2xl mx-auto shrink-0" />
         <Card fill="white" className="p-3.5 text-center sm:p-4.5 host:p-6">
           <p className="font-display text-2xl font-bold capitalize sm:text-3xl host:text-5xl">{item.correctAnswer}</p>
-          <p className="safe-copy line-clamp-3 mt-1.5 font-body text-sm font-semibold leading-snug sm:text-base host:text-2xl max-h-[4rem] sm:max-h-[5rem] host:max-h-[6.5rem] overflow-hidden text-ellipsis">{item.material.prompt}</p>
+          <p className="safe-copy mt-2 font-body text-sm font-semibold leading-relaxed sm:text-base host:text-2xl">{item.material.prompt}</p>
         </Card>
       </div>
     )
