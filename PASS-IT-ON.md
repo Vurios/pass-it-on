@@ -226,7 +226,7 @@ Player screen is mobile first, single column, minimum 64 pixel tap targets, safe
 
 # PART 4: BUILD PROMPTS
 
-Paste these into your coding agent one at a time, in order, from the repository root with this file present. They work in Claude Code, Codex, Cursor or any agent that can read the working directory and write files.
+Paste these into your coding agent one at a time, in order, from the repository root with this file present. They work in any coding agent that can read the working directory and write files.
 
 Do not run two prompts at once. Finish and test each before moving on.
 
