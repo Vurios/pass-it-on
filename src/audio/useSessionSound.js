@@ -24,7 +24,11 @@ export function useSessionSound() {
   }, [])
 
   const onCountdownSecond = useCallback((seconds) => {
-    if (seconds >= 1 && seconds <= 3) play(SOUND_CUES.TICK)
+    if (seconds >= 1 && seconds <= 3) {
+      play(SOUND_CUES.URGENT_TICK)
+    } else if (seconds === 4 || seconds === 5) {
+      play(SOUND_CUES.TICK)
+    }
   }, [play])
 
   return { muted, toggleMuted: () => setMuted((current) => !current), play, onCountdownSecond }

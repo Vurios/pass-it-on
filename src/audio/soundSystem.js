@@ -3,8 +3,10 @@ import { Howl, Howler } from 'howler'
 export const SOUND_CUES = Object.freeze({
   LOCK: 'lock',
   TICK: 'tick',
+  URGENT_TICK: 'urgent_tick',
   CORRECT: 'correct',
   INCORRECT: 'incorrect',
+  STREAK: 'streak',
   REVEAL: 'reveal',
   SCOREBOARD: 'scoreboard',
   BLIP: 'blip',
@@ -53,8 +55,10 @@ function seededNoise(index) {
 const definitions = {
   [SOUND_CUES.LOCK]: [0.08, (time, index) => tone(430, time, 48) * 0.2 + seededNoise(index) * Math.exp(-70 * time) * 0.04, 0.34],
   [SOUND_CUES.TICK]: [0.075, (time) => (tone(660, time, 54) + tone(990, time, 60) * 0.25) * 0.18, 0.28],
+  [SOUND_CUES.URGENT_TICK]: [0.08, (time) => (tone(880, time, 40) + tone(1320, time, 45) * 0.35) * 0.25, 0.35],
   [SOUND_CUES.CORRECT]: [0.62, (time) => noteSequence(time, [440, 554, 659, 880], 0.145) * 0.2, 0.42],
   [SOUND_CUES.INCORRECT]: [0.34, (time, index) => tone(135, time, 11) * 0.22 + seededNoise(index) * Math.exp(-18 * time) * 0.025, 0.3],
+  [SOUND_CUES.STREAK]: [0.45, (time) => noteSequence(time, [587, 880, 1174], 0.12) * 0.22, 0.4],
   [SOUND_CUES.REVEAL]: [0.82, (time, index) => {
     const beat = time % 0.105
     return (tone(120, beat, 34) * 0.12 + seededNoise(index) * Math.exp(-42 * beat) * 0.055) * (0.55 + time * 0.55)

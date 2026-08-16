@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { Check, Crown, Fire, Pause, Play, SkipForward, Stop, X } from '@phosphor-icons/react'
+import { Check, Crown, Fire, Medal, Pause, Play, SkipForward, Stop, Trophy, UsersThree, X } from '@phosphor-icons/react'
 import confetti from 'canvas-confetti'
 import { QRCodeSVG } from 'qrcode.react'
+import { useNavigate } from 'react-router-dom'
 import { AvatarBadge } from '../components/AvatarBadge.jsx'
 import { BigButton } from '../components/BigButton.jsx'
 import { Card } from '../components/Card.jsx'
 import { CountdownBar } from '../components/CountdownBar.jsx'
 import { ErrorState } from '../components/ErrorState.jsx'
 import { FabricatedStamp } from '../components/FabricatedStamp.jsx'
+import { LeaveConfirmModal } from '../components/LeaveConfirmModal.jsx'
 import { LoadingState } from '../components/LoadingState.jsx'
 import { RecapCard } from '../components/RecapCard.jsx'
 import { SoundToggle } from '../components/SoundToggle.jsx'
@@ -29,11 +31,11 @@ const questionPhases = new Set([PHASES.ODD_QUESTION, PHASES.SPIN_QUESTION, PHASE
 
 function ReactionBubbles({ reactions }) {
   return (
-    <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden" aria-live="polite" aria-label="Player reactions">
+    <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden" aria-live="polite" aria-label="Player Reactions">
       {reactions.map((reaction) => (
         <div
           key={reaction.id}
-          className="reaction-bubble absolute bottom-24 grid h-20 w-20 place-items-center rounded-full border-chunky border-ink bg-white text-5xl shadow-hard"
+          className="reaction-bubble absolute bottom-24 grid h-16 w-16 place-items-center rounded-full border-chunky border-ink bg-white text-4xl shadow-hard sm:h-20 sm:w-20 sm:text-5xl"
           style={{ left: `${reaction.left}%` }}
         >
           <span aria-label={reaction.label}>{reaction.emoji}</span>
@@ -43,42 +45,97 @@ function ReactionBubbles({ reactions }) {
   )
 }
 
+function HostToast({ message }) {
+  if (!message) return null
+  return (
+    <div className="toast-callout pointer-events-none fixed left-1/2 top-[calc(var(--top-rail-height)+0.75rem)] z-40 -translate-x-1/2 rounded-[14px] border-chunky border-ink bg-sunshine px-4 py-2 font-display text-base font-bold shadow-hard sm:text-lg" role="status">
+      {message}
+    </div>
+  )
+}
+
 function HostLobby({ roomCode, players, locale, onLocaleChange, onStart }) {
   const joinUrl = useMemo(() => `${window.location.origin}/player?room=${roomCode}`, [roomCode])
   const activeCount = players.filter((player) => player.connected).length
-  const canStart = activeCount >= 3 && activeCount <= 8
+  const canStart = activeCount >= 1 && activeCount <= 8
   return (
-    <main className="host-screen dot-grid screen-min-h bg-cream px-5 py-7 text-ink">
-      <div className="game-screen mx-auto grid max-w-[1500px] gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+    <main className="host-screen ambient-dot-grid screen-min-h flex flex-col justify-center bg-cream px-4 py-3 text-ink sm:px-8 sm:py-4">
+      <div className="game-screen mx-auto grid h-full max-h-full w-full max-w-[1500px] items-center gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8">
         <section className="flex flex-col items-center justify-center text-center">
-          <p className="font-display text-xl font-bold uppercase tracking-[0.08em] host:text-5xl">Join at this code</p>
-          <h1 className="mt-2 font-display text-[clamp(5rem,13vw,11rem)] font-bold leading-none tracking-[0.12em]">{roomCode}</h1>
-          <Card fill="white" tilt="left" className="mt-5 inline-block p-5">
-            <QRCodeSVG value={joinUrl} size={220} bgColor="#FFFEFB" fgColor="#1A1A1A" level="M" marginSize={1} title={`Join room ${roomCode}`} />
+          <p className="font-display text-sm font-bold uppercase tracking-[0.08em] sm:text-lg host:text-4xl">
+            Join at This Code
+          </p>
+          <h1 className="mt-1 font-display text-[clamp(3.5rem,9dvh,8rem)] font-bold leading-none tracking-[0.12em]">
+            {roomCode}
+          </h1>
+          <Card fill="white" tilt="left" className="mt-3 hidden p-3 sm:mt-4 sm:inline-block sm:p-4">
+            <QRCodeSVG
+              value={joinUrl}
+              size={170}
+              bgColor="#FFFEFB"
+              fgColor="#1A1A1A"
+              level="M"
+              marginSize={1}
+              title={`Join room ${roomCode}`}
+            />
           </Card>
-          <p className="mt-5 max-w-3xl font-body text-xl font-semibold host:text-5xl">Scan with a phone. No account needed.</p>
-          <div className="mt-6 grid w-full max-w-xl grid-cols-2 gap-4" aria-label="Game language">
-            <BigButton className="host:text-5xl" variant={locale === 'en' ? 'sunshine' : 'ocean'} aria-pressed={locale === 'en'} onClick={() => onLocaleChange('en')}>English</BigButton>
-            <BigButton className="host:text-5xl" variant={locale === 'fil' ? 'sunshine' : 'ocean'} aria-pressed={locale === 'fil'} onClick={() => onLocaleChange('fil')}>Filipino</BigButton>
+          <p className="mt-3 max-w-xl font-body text-sm font-semibold sm:text-lg host:text-4xl">
+            Scan with a phone. No account needed.
+          </p>
+          <div className="mt-3 grid w-full max-w-md grid-cols-2 gap-3 sm:mt-4" aria-label="Game Language">
+            <BigButton
+              className="!min-h-11 text-sm host:text-4xl sm:!min-h-12 sm:text-base"
+              variant={locale === 'en' ? 'sunshine' : 'ocean'}
+              aria-pressed={locale === 'en'}
+              onClick={() => onLocaleChange('en')}
+            >
+              English
+            </BigButton>
+            <BigButton
+              className="!min-h-11 text-sm host:text-4xl sm:!min-h-12 sm:text-base"
+              variant={locale === 'fil' ? 'sunshine' : 'ocean'}
+              aria-pressed={locale === 'fil'}
+              onClick={() => onLocaleChange('fil')}
+            >
+              Filipino
+            </BigButton>
           </div>
         </section>
-        <Card fill="white" tilt="right" className="flex flex-col p-7 lg:min-h-[70dvh]">
-          <h2 className="font-display text-4xl font-bold host:text-8xl">{activeCount} joined</h2>
+
+        <Card fill="white" tilt="right" className="flex max-h-[calc(100dvh-var(--top-rail-height)-2rem)] flex-col p-4 sm:p-6 lg:min-h-[60dvh]">
+          <h2 className="font-display text-2xl font-bold sm:text-3xl host:text-6xl">
+            {activeCount} Joined
+          </h2>
           {players.length === 0 ? (
-            <div className="flex flex-1 flex-col items-center justify-center text-center">
-              <p className="font-display text-[clamp(4rem,9vw,9rem)] font-bold leading-none tracking-[0.12em]">{roomCode}</p>
-              <p className="mt-5 font-body text-2xl font-semibold host:text-5xl">Your room is ready. First player gets the loudest welcome.</p>
+            <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
+              <p className="font-display text-[clamp(2.5rem,6dvh,5rem)] font-bold leading-none tracking-[0.12em]">
+                {roomCode}
+              </p>
+              <p className="mt-3 max-w-md font-body text-base font-semibold sm:text-xl host:text-4xl">
+                Your room is ready. First player gets the loudest welcome.
+              </p>
             </div>
           ) : (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-3 grid grid-cols-2 gap-2 pr-1 sm:mt-4 sm:gap-3">
               {players.map((player) => <LobbyTile key={player.id} player={player} />)}
             </div>
           )}
-          <div className="mt-auto pt-8">
-            <BigButton className="host:text-5xl" variant="coral" disabled={!canStart} onClick={onStart}>
-              {activeCount < 3 ? 'Waiting for 3 players' : activeCount > 8 ? 'Room has more than 8 players' : 'Start Round 1'}
+          <div className="mt-auto pt-4">
+            <BigButton
+              className="!min-h-12 text-lg host:text-5xl sm:!min-h-14 sm:text-xl"
+              variant="coral"
+              disabled={!canStart}
+              onClick={onStart}
+            >
+              {activeCount < 1
+                ? 'Waiting for Players'
+                : activeCount > 8
+                  ? 'Room Has More Than 8 Players'
+                  : 'Start Round 1'}
             </BigButton>
-            <p className="mt-4 text-center font-body font-bold host:text-5xl">Three to eight players, phones in hand.</p>
+            <p className="mt-2 text-center font-body text-xs font-bold sm:text-sm host:text-3xl">
+              One to eight players. Starting alone asks for confirmation.
+            </p>
           </div>
         </Card>
       </div>
@@ -88,38 +145,38 @@ function HostLobby({ roomCode, players, locale, onLocaleChange, onStart }) {
 
 function LobbyTile({ player }) {
   return (
-    <div className={`${player.connected ? 'bg-white' : 'bg-paper opacity-45'} flex items-center gap-4 rounded-[16px] border-chunky border-ink p-3 shadow-hard-sm`}>
-      <AvatarBadge avatar={player.avatar} size={38} />
-      <p className="safe-copy min-w-0 flex-1 font-display text-xl font-bold host:text-5xl">{player.name}</p>
-      {!player.connected && <span className="font-body text-sm font-bold host:text-3xl">Left</span>}
+    <div className={`${player.connected ? 'bg-white' : 'bg-paper opacity-45'} lobby-avatar-in flex items-center gap-3 rounded-[14px] border-chunky border-ink p-2.5 shadow-hard-sm`}>
+      <AvatarBadge avatar={player.avatar} size={32} />
+      <p className="safe-copy min-w-0 flex-1 font-display text-base font-bold sm:text-lg host:text-4xl">{player.name}</p>
+      {!player.connected && <span className="font-body text-xs font-bold text-coral host:text-2xl">Left</span>}
     </div>
   )
 }
 
-/*
- * One line rather than a tile per player: eight tiles at host reading sizes do
- * not fit a 1080p screen alongside the answer and the explanation, and each
- * phone already shows its own result.
- */
 function RevealTally({ state, round, itemId }) {
   const active = state.players.filter((player) => player.connected)
   const caught = active.filter((player) => answerFor(player, round, itemId)?.correct)
-  const streaks = state.players.filter((player) => {
-    const recent = player.answers.filter((entry) => entry.round === 'render').slice(-3)
-    return recent.length === 3 && recent.every((entry) => entry.correct)
-  })
+  const streaks = state.players.filter((player) => (player.streak ?? 0) >= 2)
+
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-4 rounded-[16px] border-chunky border-ink bg-white px-5 py-2 shadow-hard-sm">
-      <Check className="shrink-0" size={34} weight="bold" aria-hidden="true" />
-      <p className="font-display text-2xl font-bold host:text-5xl">{caught.length} of {active.length} caught it</p>
-      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-3">
+    <div className="mt-2.5 flex flex-wrap items-center gap-3 rounded-[14px] border-chunky border-ink bg-white px-4 py-1.5 shadow-hard-sm">
+      <Check className="shrink-0 text-lime" size={26} weight="bold" aria-hidden="true" />
+      <p className="font-display text-base font-bold sm:text-lg host:text-4xl">
+        {caught.length} of {active.length} caught it
+      </p>
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
         {caught.slice(0, 8).map((player) => (
-          <span key={player.id} className="flex min-w-0 items-center gap-2">
-            <AvatarBadge avatar={player.avatar} size={28} />
-            <span className="max-w-40 truncate font-display text-xl font-bold host:max-w-72 host:text-5xl">{player.name}</span>
+          <span key={player.id} className="flex min-w-0 items-center gap-1.5">
+            <AvatarBadge avatar={player.avatar} size={24} />
+            <span className="max-w-32 truncate font-display text-sm font-bold host:max-w-64 host:text-3xl">{player.name}</span>
           </span>
         ))}
-        {streaks.length > 0 && <Fire className="shrink-0" size={34} weight="fill" aria-label={`On a streak: ${streaks.map((player) => player.name).join(', ')}`} />}
+        {streaks.length > 0 && (
+          <span className="streak-pop inline-flex items-center gap-1 rounded-full border-2 border-ink bg-sunshine px-2 py-0.5 font-display text-xs font-bold shadow-hard-sm">
+            <Fire size={18} weight="fill" className="text-coral" aria-hidden="true" />
+            <span>Streak: {streaks.map((p) => `${p.name} (${p.streak})`).join(', ')}</span>
+          </span>
+        )}
       </div>
     </div>
   )
@@ -127,9 +184,9 @@ function RevealTally({ state, round, itemId }) {
 
 function HostFrame({ children, timer }) {
   return (
-    <main className="host-screen dot-grid flex screen-min-h flex-col bg-cream px-5 pt-4 text-ink">
-      <div className="game-screen host-frame mx-auto flex w-full max-w-[1800px] flex-1 flex-col">
-        <div className="flex-1">{children}</div>
+    <main className="host-screen dot-grid screen-min-h flex flex-col justify-between bg-cream px-3 pt-2 text-ink sm:px-6 sm:pt-3">
+      <div className="game-screen host-frame mx-auto flex h-full w-full max-w-[1700px] flex-1 flex-col justify-between">
+        <div className="flex-1 overflow-hidden">{children}</div>
         {timer}
       </div>
     </main>
@@ -144,20 +201,27 @@ function RoundHeader({ eyebrow, title, state, action }) {
     if (state.phase === PHASES.CHAIN_QUESTION) return state.chainAnswers?.[player.id]
     return state.renderAnswers[player.id]
   }).length
+
   return (
-    <header className="border-b-chunky border-ink pb-4">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {eyebrow
-          ? <p className="min-w-0 flex-1 font-display text-lg font-bold uppercase tracking-[0.08em] host:text-4xl">{eyebrow}</p>
-          : <span className="flex-1" />}
+    <header className="border-b-chunky border-ink pb-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {eyebrow ? (
+          <p className="min-w-0 flex-1 font-display text-sm font-bold uppercase tracking-[0.08em] sm:text-base host:text-3xl">
+            {eyebrow}
+          </p>
+        ) : (
+          <span className="flex-1" />
+        )}
         {questionPhases.has(state.phase) && (
-          <div className="shrink-0 rounded-[14px] border-chunky border-ink bg-sunshine px-4 py-2 font-display text-2xl font-bold shadow-hard-sm host:text-4xl">
-            {answered} of {active.length} locked
+          <div className="shrink-0 rounded-[12px] border-chunky border-ink bg-sunshine px-3 py-1 font-display text-sm font-bold shadow-hard-sm sm:text-base host:text-3xl">
+            {answered} of {active.length} Locked
           </div>
         )}
         {action}
       </div>
-      <h1 className="safe-copy mt-1 font-display text-5xl font-bold leading-[1.02] lg:text-7xl host:text-8xl">{title}</h1>
+      <h1 className="safe-copy mt-1 font-display text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl host:text-7xl">
+        {title}
+      </h1>
     </header>
   )
 }
@@ -169,24 +233,24 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     const item = state.session.oddItem
     header = <RoundHeader eyebrow="Round 1: Odd Source Out" title={item.material.event} state={state} />
     body = (
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
+      <div className="mt-3 grid gap-3 sm:mt-4 md:grid-cols-2 md:gap-4">
         {item.material.sources.map((source, index) => (
-          <Card key={source.id} fill="white" className={`${sourceColours[index]} min-h-44 p-6`} tilt={index % 2 ? 'right' : 'left'}>
-            <p className="safe-copy font-display text-3xl font-bold host:text-5xl">{source.label}: {source.source}</p>
-            <p className="safe-copy mt-4 font-display text-3xl font-semibold leading-tight host:text-5xl">{source.headline}</p>
+          <Card key={source.id} fill="white" className={`${sourceColours[index]} min-h-28 p-3.5 sm:min-h-36 sm:p-5`} tilt={index % 2 ? 'right' : 'left'}>
+            <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{source.label}: {source.source}</p>
+            <p className="safe-copy mt-2 line-clamp-3 font-display text-base font-semibold leading-snug sm:text-xl host:text-3xl">{source.headline}</p>
           </Card>
         ))}
       </div>
     )
   } else if (state.phase === PHASES.SPIN_QUESTION) {
     const item = state.session.spinItem
-    header = <RoundHeader eyebrow="Round 2: Spin Doctor" title="Spot the spin" state={state} />
+    header = <RoundHeader eyebrow="Round 2: Spin Doctor" title="Spot the Spin" state={state} />
     body = (
-      <Card fill="white" tilt="left" className="mt-8 p-8">
-        <p className="font-display text-3xl font-bold leading-relaxed lg:text-5xl host:text-7xl">
+      <Card fill="white" tilt="left" className="mt-4 p-4 sm:mt-6 sm:p-6">
+        <p className="font-display text-xl font-bold leading-relaxed sm:text-3xl lg:text-4xl host:text-6xl">
           {item.material.phrases.map((phrase, index) => (
-            <span key={phrase} className="safe-copy m-2 inline-block max-w-full rounded-[14px] border-chunky border-ink bg-paper px-4 py-2 shadow-hard-sm">
-              <span className="mr-2 text-coral">{index + 1}</span>{phrase}
+            <span key={phrase} className="safe-copy m-1.5 inline-block max-w-full rounded-[12px] border-chunky border-ink bg-paper px-3 py-1.5 shadow-hard-sm sm:m-2 sm:px-4 sm:py-2">
+              <span className="mr-1.5 text-coral sm:mr-2">{index + 1}</span>{phrase}
             </span>
           ))}
         </p>
@@ -194,12 +258,12 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     )
   } else if (state.phase === PHASES.CHAIN_QUESTION) {
     const item = state.session.chainItem
-    header = <RoundHeader eyebrow="Bonus: order these oldest first" title={item.material.claim} state={state} />
+    header = <RoundHeader eyebrow="Bonus Round: Order These Oldest First" title={item.material.claim} state={state} />
     body = (
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
         {item.material.retellings.map((retelling, index) => (
-          <Card key={retelling.id} fill="white" className={`${sourceColours[index]} p-5`} tilt={index % 2 ? 'right' : 'left'}>
-            <p className="safe-copy font-display text-3xl font-semibold leading-tight host:text-5xl">
+          <Card key={retelling.id} fill="white" className={`${sourceColours[index]} p-3.5 sm:p-4`} tilt={index % 2 ? 'right' : 'left'}>
+            <p className="safe-copy font-display text-lg font-semibold leading-snug sm:text-2xl host:text-4xl">
               <span className="font-bold">{retelling.label}. </span>{retelling.text}
             </p>
           </Card>
@@ -208,10 +272,10 @@ function HostQuestion({ state, onTimeExpired, onChainTimeExpired, onSecondChange
     )
   } else {
     const item = state.session.renderItems[state.renderIndex]
-    header = <RoundHeader eyebrow={`Round 3: Real or Rendered · ${state.renderIndex + 1}/${state.session.renderItems.length}`} title="Real or rendered?" state={state} />
+    header = <RoundHeader eyebrow={`Round 3: Real or Rendered · ${state.renderIndex + 1}/${state.session.renderItems.length}`} title="Real or Rendered?" state={state} />
     body = (
-      <Card fill="white" tilt="right" className="mx-auto mt-6 max-w-7xl p-8 text-center">
-        <p className="safe-copy font-display text-4xl font-bold leading-tight lg:text-6xl host:text-8xl">{item.material.prompt}</p>
+      <Card fill="white" tilt="right" className="mx-auto mt-4 max-w-5xl p-6 text-center sm:mt-6 sm:p-8">
+        <p className="safe-copy font-display text-2xl font-bold leading-tight sm:text-4xl lg:text-5xl host:text-7xl">{item.material.prompt}</p>
       </Card>
     )
   }
@@ -240,20 +304,27 @@ function HostReveal({ state, onNext, onEndBonus }) {
   let item
   let round
   let content
+  const answerMap = state.phase === PHASES.ODD_REVEAL
+    ? state.oddAnswers
+    : state.phase === PHASES.SPIN_REVEAL
+      ? state.spinAnswers
+      : state.phase === PHASES.CHAIN_REVEAL
+        ? state.chainAnswers
+        : state.renderAnswers
+  const nobodyAnswered = Object.keys(answerMap ?? {}).length === 0
   if (state.phase === PHASES.ODD_REVEAL) {
     item = state.session.oddItem; round = 'odd'
-    /* The named card stands alone; per Part 1.3 the other three fade back. */
     const winner = item.material.sources.find((source) => source.id === item.correctAnswer)
     const winnerIndex = item.material.sources.indexOf(winner)
     content = (
       <>
-        <Card fill="white" className={`${sourceColours[winnerIndex]} mt-4 p-5 outline-8 outline-sunshine`} tilt="left">
-          <p className="safe-copy font-display text-3xl font-bold host:text-5xl">{winner.label}: {winner.source}</p>
-          <p className="safe-copy mt-3 font-display text-3xl font-semibold leading-tight host:text-5xl">{winner.headline}</p>
+        <Card fill="white" className={`${sourceColours[winnerIndex]} mt-2.5 p-3.5 outline-6 outline-sunshine sm:mt-3 sm:p-4`} tilt="left">
+          <p className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{winner.label}: {winner.source}</p>
+          <p className="safe-copy mt-1.5 font-display text-lg font-semibold leading-tight sm:text-xl host:text-3xl">{winner.headline}</p>
         </Card>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
           {item.material.sources.filter((source) => source.id !== item.correctAnswer).map((source, index) => (
-            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[16px] border-chunky border-ink px-4 py-3 font-display text-xl font-bold opacity-45 shadow-hard-sm host:text-5xl`}>
+            <div key={source.id} className={`${sourceColours[index >= winnerIndex ? index + 1 : index]} truncate rounded-[12px] border-chunky border-ink px-3 py-2 font-display text-sm font-bold opacity-45 shadow-hard-sm sm:text-base host:text-3xl`}>
               {source.label}: {source.source}
             </div>
           ))}
@@ -263,10 +334,10 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else if (state.phase === PHASES.SPIN_REVEAL) {
     item = state.session.spinItem; round = 'spin'
     content = (
-      <Card fill="white" className="mt-4 p-5">
-        <div className="flex flex-wrap gap-3">
+      <Card fill="white" className="mt-3 p-3.5 sm:p-4">
+        <div className="flex flex-wrap gap-2">
           {item.material.phrases.map((phrase, index) => (
-            <span key={phrase} className={`${item.correctAnswer.includes(index) ? 'bg-coral' : 'bg-paper opacity-55'} safe-copy max-w-full rounded-[14px] border-chunky border-ink px-4 py-3 font-display text-2xl font-bold host:text-5xl`}>
+            <span key={phrase} className={`${item.correctAnswer.includes(index) ? 'bg-coral text-white' : 'bg-paper opacity-55'} safe-copy max-w-full rounded-[12px] border-chunky border-ink px-3 py-1.5 font-display text-base font-bold sm:text-xl host:text-4xl`}>
               {phrase}
             </span>
           ))}
@@ -277,14 +348,14 @@ function HostReveal({ state, onNext, onEndBonus }) {
     item = state.session.chainItem; round = 'chain'
     const ordered = item.correctAnswer.map((id) => item.material.retellings.find((retelling) => retelling.id === id))
     content = (
-      <ol className="mt-4 grid gap-3 lg:grid-cols-2 host:grid-cols-4">
+      <ol className="mt-3 grid gap-2.5 lg:grid-cols-2 host:grid-cols-4">
         {ordered.map((retelling, index) => (
           <li key={retelling.id}>
-            <Card fill="white" className={`${index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral' : ''} p-4`} tilt={index % 2 ? 'right' : 'left'}>
-              <p className="safe-copy font-display text-2xl font-bold leading-tight host:text-5xl">
+            <Card fill="white" className={`${index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral' : ''} p-3`} tilt={index % 2 ? 'right' : 'left'}>
+              <p className="safe-copy font-display text-base font-bold leading-tight sm:text-xl host:text-3xl">
                 <span className="text-ink/55">{index + 1}. </span>{retelling.text}
               </p>
-              <p className="safe-copy mt-2 font-body text-lg font-semibold leading-snug host:text-4xl">{retelling.note}</p>
+              <p className="safe-copy mt-1 font-body text-xs font-semibold leading-snug sm:text-sm host:text-2xl">{retelling.note}</p>
             </Card>
           </li>
         ))}
@@ -293,26 +364,35 @@ function HostReveal({ state, onNext, onEndBonus }) {
   } else {
     item = state.session.renderItems[state.renderIndex]; round = 'render'
     content = (
-      <Card fill="white" className="mx-auto mt-6 max-w-7xl p-8 text-center">
-        <p className="font-display text-5xl font-bold uppercase host:text-8xl">{item.correctAnswer}</p>
-        <p className="safe-copy mt-4 font-body text-2xl font-semibold host:text-5xl">{item.material.prompt}</p>
+      <Card fill="white" className="mx-auto mt-4 max-w-5xl p-6 text-center sm:p-8">
+        <p className="font-display text-3xl font-bold capitalize sm:text-5xl host:text-7xl">{item.correctAnswer}</p>
+        <p className="safe-copy mt-2.5 font-body text-lg font-semibold sm:text-xl host:text-4xl">{item.material.prompt}</p>
       </Card>
     )
   }
 
-  const action = state.phase === PHASES.CHAIN_REVEAL
-    ? <BigButton variant="ocean" className="!w-auto shrink-0 host:text-4xl" onClick={onEndBonus}>Back to the scores</BigButton>
-    : state.phase !== PHASES.RENDER_REVEAL
-      ? <BigButton variant="sunshine" className="!w-auto shrink-0 host:text-4xl" onClick={onNext}>Next round</BigButton>
-      : null
+  const action = state.phase === PHASES.CHAIN_REVEAL ? (
+    <BigButton variant="ocean" className="!h-10 !min-h-0 !w-auto shrink-0 px-4 text-sm host:text-3xl" onClick={onEndBonus}>
+      Back to Scores
+    </BigButton>
+  ) : state.phase !== PHASES.RENDER_REVEAL ? (
+    <BigButton variant="sunshine" className="!h-10 !min-h-0 !w-auto shrink-0 px-4 text-sm host:text-3xl" onClick={onNext}>
+      Next Round
+    </BigButton>
+  ) : null
 
   return (
     <HostFrame>
       <RoundHeader eyebrow={null} title={item.technique} state={state} action={action} />
+      {nobodyAnswered && (
+        <p className="mt-2 rounded-[12px] border-chunky border-ink bg-sunshine px-4 py-2 text-center font-display text-xl font-bold shadow-hard-sm sm:text-2xl host:text-4xl">
+          Time's up! Here is the answer.
+        </p>
+      )}
       {content}
-      <Card fill="white" tilt="left" className="reveal-banner mt-4 p-4 host:flex host:flex-wrap host:items-center host:gap-4">
-        <p className="safe-copy min-w-0 flex-1 font-body text-2xl font-semibold host:text-5xl">{item.explanation}</p>
-        {item.fabricated && <FabricatedStamp className="mt-3 host:mt-0" />}
+      <Card fill="white" tilt="left" className="reveal-banner mt-3 p-3 host:flex host:flex-wrap host:items-center host:gap-4 sm:p-4">
+        <p className="safe-copy min-w-0 flex-1 font-body text-base font-semibold sm:text-lg host:text-3xl">{item.explanation}</p>
+        {item.fabricated && <FabricatedStamp className="mt-2 sm:mt-0" />}
       </Card>
       {state.phase !== PHASES.CHAIN_REVEAL && <RevealTally state={state} round={round} itemId={item.id} />}
     </HostFrame>
@@ -326,20 +406,35 @@ function HostControls({ state, dispatch }) {
   const skip = () => dispatch(state.phase === PHASES.CHAIN_QUESTION
     ? { type: 'CHAIN_TIME_EXPIRED', now: Date.now() }
     : { type: 'SKIP_ROUND' })
+
   return (
-    <div className="host-control fixed inset-x-0 bottom-0 z-40 flex items-center border-t-chunky border-ink bg-white px-3 py-2">
-      <div className="mx-auto flex w-full max-w-5xl gap-3">
-        <BigButton variant="ocean" className="!min-h-20 flex-1 gap-2 text-base" disabled={!question} onClick={() => dispatch({ type: state.paused ? 'RESUME_GAME' : 'PAUSE_GAME', now: Date.now() })}>
-          {state.paused ? <Play size={22} weight="fill" /> : <Pause size={22} weight="fill" />}
-          {state.paused ? 'Resume' : 'Pause'}
+    <div className="host-control fixed inset-x-0 bottom-0 z-40 flex items-center border-t-chunky border-ink bg-white px-3 py-1.5 sm:px-6">
+      <div className="mx-auto flex w-full max-w-4xl gap-2.5">
+        <BigButton
+          variant="ocean"
+          className="!h-11 !min-h-0 flex-1 gap-1.5 text-xs sm:!h-12 sm:text-sm"
+          disabled={!question}
+          onClick={() => dispatch({ type: state.paused ? 'RESUME_GAME' : 'PAUSE_GAME', now: Date.now() })}
+        >
+          {state.paused ? <Play size={18} weight="fill" /> : <Pause size={18} weight="fill" />}
+          <span>{state.paused ? 'Resume' : 'Pause'}</span>
         </BigButton>
-        <BigButton variant="sunshine" className="!min-h-20 flex-1 gap-2 text-base" disabled={!question} onClick={skip}>
-          <SkipForward size={22} weight="fill" />
-          {bonus ? 'Skip bonus' : 'Skip round'}
+        <BigButton
+          variant="sunshine"
+          className="!h-11 !min-h-0 flex-1 gap-1.5 text-xs sm:!h-12 sm:text-sm"
+          disabled={!question}
+          onClick={skip}
+        >
+          <SkipForward size={18} weight="fill" />
+          <span>{bonus ? 'Skip Bonus' : 'Skip Round'}</span>
         </BigButton>
-        <BigButton variant="coral" className="!min-h-20 flex-1 gap-2 text-base" onClick={() => dispatch({ type: 'END_EARLY' })}>
-          <Stop size={22} weight="fill" />
-          {bonus ? 'Back to scores' : 'End early'}
+        <BigButton
+          variant="coral"
+          className="!h-11 !min-h-0 flex-1 gap-1.5 text-xs sm:!h-12 sm:text-sm"
+          onClick={() => dispatch({ type: 'END_EARLY' })}
+        >
+          <Stop size={18} weight="fill" />
+          <span>{bonus ? 'Back to Scores' : 'End Early'}</span>
         </BigButton>
       </div>
     </div>
@@ -349,49 +444,77 @@ function HostControls({ state, dispatch }) {
 function Scoreboard({ state, onRecap, onPlayAgain }) {
   const ranked = [...state.players].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
   const titles = assignPlayerTitles(state.players)
-  const podium = [ranked[1], ranked[0], ranked[2]].filter(Boolean)
+  const podium = [ranked[2], ranked[1], ranked[0]].filter(Boolean)
   const bonusPlayed = state.players.some((player) => (player.bonusScore ?? 0) > 0)
+  const [revealed, setRevealed] = useState(0)
+
+  useEffect(() => {
+    const timers = podium.map((player, index) => window.setTimeout(() => {
+      setRevealed(index + 1)
+      if (player.id === ranked[0]?.id) {
+        confetti({ particleCount: 180, spread: 84, origin: { y: 0.6 }, colors: ['#FF5A5F', '#FFC53D', '#2E86AB', '#8BC34A'], disableForReducedMotion: true })
+      }
+    }, index * 1_500))
+    return () => timers.forEach((timer) => window.clearTimeout(timer))
+  }, [])
+
   return (
     <HostFrame>
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b-chunky border-ink pb-4">
-        <div className="flex min-w-0 flex-1 items-center gap-4">
-          <Crown className="shrink-0" size={56} weight="fill" />
-          <h1 className="font-display text-5xl font-bold lg:text-7xl">Pass it on!</h1>
-          <p className="font-display text-xl font-bold uppercase tracking-[0.08em] host:text-5xl">Final scoreboard</p>
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b-chunky border-ink pb-2.5">
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <Crown className="shrink-0 text-sunshine" size={38} weight="fill" />
+          <div>
+            <h1 className="font-display text-2xl font-bold sm:text-4xl lg:text-5xl">Pass It On!</h1>
+            <p className="font-display text-xs font-bold uppercase tracking-[0.08em] sm:text-sm host:text-3xl">Final Scoreboard</p>
+          </div>
         </div>
-        <div className="flex shrink-0 gap-3">
-          <BigButton variant="ocean" className="!w-auto host:text-4xl" onClick={onRecap}>Room recap</BigButton>
-          <BigButton variant="coral" className="!w-auto host:text-4xl" onClick={onPlayAgain}>Play again</BigButton>
+        <div className="flex shrink-0 gap-2">
+          <BigButton variant="ocean" className="!h-10 !min-h-0 !w-auto px-4 text-xs sm:text-sm host:text-3xl" onClick={onRecap}>
+            Room Recap
+          </BigButton>
+          <BigButton variant="coral" className="!h-10 !min-h-0 !w-auto px-4 text-xs sm:text-sm host:text-3xl" onClick={onPlayAgain}>
+            Play Again
+          </BigButton>
         </div>
       </header>
-      <div className="mx-auto mt-5 flex max-w-7xl items-end justify-center gap-4">
-        {podium.map((player) => {
+
+      <div className="mx-auto mt-3 grid w-full max-w-3xl gap-2 sm:mt-4">
+        {podium.slice(0, revealed).map((player) => {
           const place = ranked.indexOf(player) + 1
           return (
-            <Card key={player.id} fill={place === 1 ? 'cream' : 'white'} className={`${place === 1 ? 'bg-sunshine py-5' : 'py-3'} flex w-1/3 flex-col items-center justify-center p-4 text-center`}>
-              <span className="font-display text-4xl font-bold host:text-5xl">#{place}</span>
-              <AvatarBadge avatar={player.avatar} size={44} />
-              <h2 className="safe-copy mt-1 truncate font-display text-2xl font-bold host:text-5xl">{player.name}</h2>
-              <p className="font-display text-3xl font-bold host:text-6xl">{player.score}</p>
+            <Card
+              key={player.id}
+              fill={place === 1 ? 'cream' : 'white'}
+              className={`${place === 1 ? 'bg-sunshine' : 'bg-white'} podium-reveal flex items-center gap-3 !p-2.5 sm:gap-4 sm:!p-3`}
+            >
+              <div className={`${place === 1 ? 'bg-sunshine' : place === 2 ? 'bg-paper' : 'bg-coral'} grid h-11 w-11 shrink-0 place-items-center rounded-[12px] border-chunky border-ink shadow-hard-sm`}>
+                <Medal size={26} weight="fill" aria-label={`${place === 1 ? 'Gold' : place === 2 ? 'Silver' : 'Bronze'} Medal`} />
+              </div>
+              <span className="font-display text-xl font-bold sm:text-2xl host:text-4xl">#{place}</span>
+              <AvatarBadge avatar={player.avatar} size={30} />
+              <h2 className="safe-copy min-w-0 flex-1 truncate font-display text-lg font-bold sm:text-xl host:text-3xl">{player.name}</h2>
+              <p className="shrink-0 font-display text-xl font-bold sm:text-2xl host:text-4xl">{player.score} pts</p>
             </Card>
           )
         })}
+        {revealed < podium.length && <p className="py-2 text-center font-display text-lg font-bold text-ink/65">Next place...</p>}
       </div>
-      <div className="mx-auto mt-5 grid max-w-7xl gap-3 sm:grid-cols-2">
+
+      <div className="mx-auto mt-3 grid max-w-5xl grid-cols-2 gap-2 pr-1 sm:mt-4 sm:gap-2.5">
         {ranked.map((player, index) => (
-          <div key={player.id} className={`${player.connected ? 'bg-white' : 'bg-paper opacity-50'} flex items-center gap-4 rounded-[16px] border-chunky border-ink px-4 py-2 shadow-hard-sm`}>
-            <span className="font-display text-3xl font-bold host:text-5xl">{index + 1}</span>
-            <AvatarBadge avatar={player.avatar} size={38} />
-            <div className="flex min-w-0 flex-1 items-baseline gap-4">
-              <p className="min-w-0 flex-1 truncate font-display text-xl font-bold host:text-5xl">{player.name}</p>
-              <p className="min-w-0 shrink truncate font-body text-sm font-bold host:text-5xl">{titles[player.id]}</p>
+          <div key={player.id} className={`${player.connected ? 'bg-white' : 'bg-paper opacity-50'} flex items-center gap-3 rounded-[12px] border-chunky border-ink px-3 py-1.5 shadow-hard-sm`}>
+            <span className="font-display text-lg font-bold sm:text-xl host:text-3xl">{index + 1}</span>
+            <AvatarBadge avatar={player.avatar} size={28} />
+            <div className="flex min-w-0 flex-1 items-baseline gap-2">
+              <p className="min-w-0 flex-1 truncate font-display text-sm font-bold sm:text-base host:text-3xl">{player.name}</p>
+              <p className="min-w-0 shrink truncate font-body text-xs font-bold text-ink/70 host:text-2xl">{titles[player.id]}</p>
             </div>
             {bonusPlayed && (player.bonusScore ?? 0) > 0 && (
-              <span className="shrink-0 rounded-[10px] border-chunky border-ink bg-sunshine px-2 py-1 font-body text-sm font-bold host:text-3xl">
+              <span className="shrink-0 rounded-[8px] border-chunky border-ink bg-sunshine px-1.5 py-0.5 font-body text-xs font-bold">
                 +{player.bonusScore} bonus
               </span>
             )}
-            <strong className="font-display text-3xl host:text-5xl">{player.score}</strong>
+            <strong className="font-display text-base sm:text-xl host:text-3xl">{player.score}</strong>
           </div>
         ))}
       </div>
@@ -399,7 +522,48 @@ function Scoreboard({ state, onRecap, onPlayAgain }) {
   )
 }
 
+function MidGameLeaderboardFlash({ title, players, onComplete }) {
+  const ranked = [...players].sort((a, b) => b.score - a.score)
+  const streakPlayer = ranked.find((player) => (player.streak ?? 0) >= 2)
+  const biggestGain = [...players].sort((a, b) => (b.answers.at(-1)?.score ?? 0) - (a.answers.at(-1)?.score ?? 0))[0]
+  const callout = streakPlayer
+    ? `${streakPlayer.name} is on a ${streakPlayer.streak}-answer streak.`
+    : biggestGain?.answers.at(-1)?.score > 0
+      ? `Biggest jump: ${biggestGain.name} +${biggestGain.answers.at(-1).score}.`
+      : 'Scores are still wide open.'
+  useEffect(() => {
+    const timer = window.setTimeout(onComplete, 3500)
+    return () => window.clearTimeout(timer)
+  }, [onComplete])
+
+  return (
+    <div className="fixed inset-0 z-40 grid place-items-center bg-ink/75 p-4" role="dialog" aria-label="Current Standings">
+      <div className="game-screen w-full max-w-md">
+        <Card fill="white" tilt="left" className="p-6 text-center">
+          <Trophy size={42} weight="fill" className="mx-auto text-sunshine" />
+          <h2 className="mt-2 font-display text-3xl font-bold">{title}</h2>
+          <p className="mt-1 font-body text-sm font-semibold">Current room standings</p>
+          <div className="mt-4 grid gap-2">
+            {ranked.slice(0, 5).map((player, idx) => (
+              <div key={player.id} className="leaderboard-entry flex items-center gap-3 rounded-[12px] border-chunky border-ink bg-paper p-2.5" style={{ animationDelay: `${idx * 90}ms` }}>
+                <span className="font-display text-xl font-bold">#{idx + 1}</span>
+                <AvatarBadge avatar={player.avatar} size={28} />
+                <span className="flex-1 truncate text-left font-display text-base font-bold">{player.name}</span>
+                {(player.streak ?? 0) >= 2 && <Fire size={20} weight="fill" className="text-coral" />}
+                <strong className="font-display text-lg">{player.score} pts</strong>
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 rounded-[10px] border-2 border-ink bg-sunshine px-3 py-1.5 font-body text-sm font-bold">{callout}</p>
+          <p className="mt-4 font-body text-xs font-bold text-ink/70">Next round starting in a moment...</p>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
 export function HostScreen() {
+  const navigate = useNavigate()
   const sound = useSessionSound()
   const [state, dispatch] = useReducer(gameReducer, hostSession, createMultiplayerGameState)
   const readAloud = useHostReadAloud(state)
@@ -409,16 +573,29 @@ export function HostScreen() {
   const [showRecap, setShowRecap] = useState(false)
   const [locale, setLocale] = useState('en')
   const [reactionBubbles, setReactionBubbles] = useState([])
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+  const [showSmallLobbyConfirm, setShowSmallLobbyConfirm] = useState(false)
+  const [hostToast, setHostToast] = useState('')
+  const [flashStandings, setFlashStandings] = useState(null)
   const sendQueue = useRef(Promise.resolve())
   const stateRef = useRef(state)
   const celebrationKey = useRef('')
   const knownPlayers = useRef(new Set())
   const reactionSequence = useRef(0)
   const reactionTimers = useRef(new Set())
+  const toastTimer = useRef(null)
+  const previousConnections = useRef(new Map())
+  const firstRoundHintShown = useRef(false)
+
+  const showHostToast = useCallback((message, duration = 2_000) => {
+    window.clearTimeout(toastTimer.current)
+    setHostToast(message)
+    toastTimer.current = window.setTimeout(() => setHostToast(''), duration)
+  }, [])
 
   const showReaction = useCallback((message) => {
     const player = stateRef.current.players.find((entry) => entry.id === message.playerId && entry.connected)
-    if (!player || !revealPhases.has(stateRef.current.phase)) return
+    if (!player) return
     reactionSequence.current += 1
     const id = crypto.randomUUID()
     setReactionBubbles((current) => [...current, {
@@ -430,7 +607,7 @@ export function HostScreen() {
     const timer = window.setTimeout(() => {
       setReactionBubbles((current) => current.filter((reaction) => reaction.id !== id))
       reactionTimers.current.delete(timer)
-    }, 2_000)
+    }, 2_200)
     reactionTimers.current.add(timer)
   }, [])
 
@@ -462,7 +639,22 @@ export function HostScreen() {
   useEffect(() => () => {
     for (const timer of reactionTimers.current) window.clearTimeout(timer)
     reactionTimers.current.clear()
+    window.clearTimeout(toastTimer.current)
   }, [])
+
+  useEffect(() => {
+    for (const player of state.players) {
+      const wasConnected = previousConnections.current.get(player.id)
+      if (wasConnected === true && !player.connected) showHostToast(`${player.name} left. Their score is saved.`)
+      previousConnections.current.set(player.id, player.connected)
+    }
+  }, [state.players, showHostToast])
+
+  useEffect(() => {
+    if (state.phase !== PHASES.ODD_QUESTION || firstRoundHintShown.current) return
+    firstRoundHintShown.current = true
+    showHostToast('Players answer on their phones.', 5_000)
+  }, [state.phase, showHostToast])
 
   useEffect(() => { const timer = window.setInterval(() => dispatch({ type: 'MARK_STALE_PLAYERS', now: Date.now(), staleAfterMs }), 1_000); return () => window.clearInterval(timer) }, [])
   useEffect(() => { stateRef.current = state }, [state])
@@ -479,6 +671,7 @@ export function HostScreen() {
     }, 5_000)
     return () => window.clearInterval(keepalive)
   }, [connection])
+
   useEffect(() => {
     const key = `${state.phase}:${state.renderIndex}`
     if (![...revealPhases, PHASES.SCOREBOARD].includes(state.phase) || celebrationKey.current === key) return
@@ -491,9 +684,16 @@ export function HostScreen() {
         : state.phase === PHASES.CHAIN_REVEAL
           ? state.session.chainItem.id
           : state.session.renderItems[state.renderIndex]?.id
-    if (state.phase !== PHASES.SCOREBOARD && !state.players.some((player) => player.answers.some((answer) => answer.itemId === itemId && answer.correct))) return
-    confetti({ particleCount: state.phase === PHASES.SCOREBOARD ? 180 : 90, spread: 80, origin: { y: 0.65 }, colors: ['#FF5A5F', '#FFC53D', '#2E86AB', '#8BC34A'], disableForReducedMotion: true })
-  }, [state.phase, state.players, state.renderIndex])
+    if (state.phase === PHASES.SCOREBOARD) return
+    const correct = state.players
+      .map((player) => ({ player, answer: player.answers.find((answer) => answer.itemId === itemId && answer.correct) }))
+      .filter((entry) => entry.answer)
+      .sort((a, b) => a.answer.elapsedMs - b.answer.elapsedMs)
+    if (correct.length === 0) return
+    showHostToast(`First correct answer: ${correct[0].player.name}.`)
+    confetti({ particleCount: 90, spread: 80, origin: { y: 0.65 }, colors: ['#FF5A5F', '#FFC53D', '#2E86AB', '#8BC34A'], disableForReducedMotion: true })
+  }, [state.phase, state.players, state.renderIndex, showHostToast])
+
   useEffect(() => {
     if (state.phase !== PHASES.RENDER_REVEAL) return undefined
     const timer = window.setTimeout(() => dispatch({ type: 'NEXT_PHASE', now: Date.now() }), 2_500)
@@ -508,36 +708,90 @@ export function HostScreen() {
     setLocale(nextLocale)
     dispatch({ type: 'SET_SESSION', session: createGameSession(nextLocale) })
   }
+
+  const handleNextWithFlash = () => {
+    if (state.phase === PHASES.ODD_REVEAL) {
+      setFlashStandings('Round 1 Standings')
+    } else if (state.phase === PHASES.SPIN_REVEAL) {
+      setFlashStandings('Round 2 Standings')
+    } else {
+      dispatch({ type: 'NEXT_PHASE', now: Date.now() })
+    }
+  }
+
+  const handleBackClick = () => {
+    if (state.phase === PHASES.LOBBY && state.players.length === 0) {
+      navigate('/')
+    } else {
+      setShowLeaveConfirm(true)
+    }
+  }
+
+  const handleConfirmLeave = () => {
+    setShowLeaveConfirm(false)
+    navigate('/')
+  }
+
+  const startFromLobby = () => {
+    const activeCount = state.players.filter((player) => player.connected).length
+    if (activeCount === 1) {
+      setShowSmallLobbyConfirm(true)
+      return
+    }
+    dispatch({ type: 'START_GAME', now: Date.now() })
+  }
+
   const hostToggles = (
-    <TopRail>
+    <TopRail onBack={handleBackClick} backAriaLabel="Leave Host Room">
       <ReadAloudToggle enabled={readAloud.enabled} supported={readAloud.supported} onToggle={readAloud.toggle} />
       <SoundToggle muted={sound.muted} onToggle={sound.toggleMuted} />
     </TopRail>
   )
+
   const bonusPlayed = state.players.some((player) => player.answers.some((answer) => answer.round === 'chain'))
-  if (networkError) return <>{hostToggles}<ErrorState host message="The room connection stopped. Check your Supabase settings and try again." actionLabel="Try again" onAction={() => window.location.reload()} /></>
+  if (networkError) return <>{hostToggles}<ErrorState host message="The room connection stopped. Check your Supabase settings and try again." actionLabel="Try Again" onAction={() => window.location.reload()} /></>
   if (!connection || !roomCode) return <>{hostToggles}<LoadingState host message="Claiming a room code..." /></>
-  if (showRecap) return <>{hostToggles}<RecapCard state={state} onBack={() => setShowRecap(false)} onPlayAgain={playAgain} onBonus={bonusPlayed ? undefined : startBonus} /></>
-  if (state.phase === PHASES.LOBBY) return <>{hostToggles}<HostLobby roomCode={roomCode} players={state.players} locale={locale} onLocaleChange={selectLocale} onStart={() => dispatch({ type: 'START_GAME', now: Date.now() })} /></>
-  if (state.phase === PHASES.SCOREBOARD) return <>{hostToggles}<Scoreboard state={state} onRecap={() => setShowRecap(true)} onPlayAgain={playAgain} /></>
+  if (showRecap) return <>{hostToggles}<RecapCard state={state} onBack={() => setShowRecap(false)} onPlayAgain={playAgain} onMenu={() => navigate('/')} onBonus={bonusPlayed ? undefined : startBonus} /></>
+  if (state.phase === PHASES.LOBBY) return <>{hostToggles}<HostLobby roomCode={roomCode} players={state.players} locale={locale} onLocaleChange={selectLocale} onStart={startFromLobby} /><LeaveConfirmModal open={showLeaveConfirm} onConfirm={handleConfirmLeave} onCancel={() => setShowLeaveConfirm(false)} title="Close Host Room?" message="Are you sure you want to close this game lobby and return to the main menu?" /><LeaveConfirmModal open={showSmallLobbyConfirm} onConfirm={() => { setShowSmallLobbyConfirm(false); dispatch({ type: 'START_GAME', now: Date.now() }) }} onCancel={() => setShowSmallLobbyConfirm(false)} title="Only 1 Player Joined" message="Only 1 player joined. Start anyway?" confirmLabel="Start Anyway" cancelLabel="Wait for More" confirmVariant="sunshine" icon={UsersThree} /></>
+  if (state.phase === PHASES.SCOREBOARD) return <>{hostToggles}<Scoreboard state={state} onRecap={() => setShowRecap(true)} onPlayAgain={playAgain} /><LeaveConfirmModal open={showLeaveConfirm} onConfirm={handleConfirmLeave} onCancel={() => setShowLeaveConfirm(false)} title="Leave Game?" message="Are you sure you want to return to the main menu?" /></>
+
   const screen = questionPhases.has(state.phase)
     ? <HostQuestion state={state} onTimeExpired={onTimeExpired} onChainTimeExpired={onChainTimeExpired} onSecondChange={sound.onCountdownSecond} />
-    : <HostReveal state={state} onNext={() => dispatch({ type: 'NEXT_PHASE', now: Date.now() })} onEndBonus={() => dispatch({ type: 'END_BONUS' })} />
+    : <HostReveal state={state} onNext={handleNextWithFlash} onEndBonus={() => dispatch({ type: 'END_BONUS' })} />
+
   return (
-    <>{hostToggles}
+    <>
+      {hostToggles}
       {screen}
       <HostControls state={state} dispatch={dispatch} />
-      {revealPhases.has(state.phase) && <ReactionBubbles reactions={reactionBubbles} />}
+      <ReactionBubbles reactions={reactionBubbles} />
+      <HostToast message={hostToast} />
+      {flashStandings && (
+        <MidGameLeaderboardFlash
+          title={flashStandings}
+          players={state.players}
+          onComplete={() => {
+            setFlashStandings(null)
+            dispatch({ type: 'NEXT_PHASE', now: Date.now() })
+          }}
+        />
+      )}
       {state.paused && (
-        <div className="fixed inset-x-0 z-30 grid place-items-center bg-ink/75" style={{ top: 'calc(var(--top-rail-height) + 3px)', bottom: 'var(--host-control-height)' }}>
-          <Card fill="white" tilt="left" className="p-10 text-center">
-            <Pause className="mx-auto" size={64} weight="fill" />
-            <p className="mt-3 font-display text-6xl font-bold">Paused</p>
-            <p className="mt-2 font-body text-2xl font-semibold host:text-4xl">Resume from the bar below.</p>
+        <div className="fixed inset-x-0 z-30 grid place-items-center bg-ink/75" style={{ top: 'var(--top-rail-height)', bottom: 'var(--host-control-height)' }}>
+          <Card fill="white" tilt="left" className="p-8 text-center">
+            <Pause className="mx-auto" size={54} weight="fill" />
+            <p className="mt-2 font-display text-4xl font-bold sm:text-5xl">Paused</p>
+            <p className="mt-2 font-body text-lg font-semibold host:text-3xl">Resume from the bar below.</p>
           </Card>
         </div>
       )}
-      
+      <LeaveConfirmModal
+        open={showLeaveConfirm}
+        onConfirm={handleConfirmLeave}
+        onCancel={() => setShowLeaveConfirm(false)}
+        title="Leave Active Game?"
+        message="Are you sure you want to exit to the main menu? The ongoing room session will end."
+      />
     </>
   )
 }

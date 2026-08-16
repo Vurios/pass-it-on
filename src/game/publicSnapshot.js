@@ -17,6 +17,7 @@ function publicPlayers(state) {
     name: player.name,
     avatar: player.avatar,
     score: player.score,
+    streak: player.streak ?? 0,
     connected: player.connected,
     hasAnswered: Boolean(answers[player.id]),
   }))

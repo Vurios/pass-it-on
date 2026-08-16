@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import {
   CHAIN_TIMING,
   PHASES,
+  SINGLE_SCREEN_TIME_BONUS,
   assignPlayerTitles,
   createInitialGameState,
   createMultiplayerGameState,
@@ -104,10 +105,17 @@ test('titles come from score and answer metrics', () => {
   assert.equal(titles.steady, 'The Steady Turtle')
 })
 
-test('multiplayer Round 1 starts only with three to eight players and reveals after all answer', () => {
+test('multiplayer Round 1 requires at least one player and reveals after all answer', () => {
   let state = createMultiplayerGameState(session)
   state = gameReducer(state, { type: 'START_GAME', now: 0 })
   assert.equal(state.phase, PHASES.LOBBY)
+
+  let onePlayer = gameReducer(state, {
+    type: 'ADD_PLAYER',
+    player: { id: 'solo-phone', name: 'solo-phone', avatar: 'cat' },
+  })
+  onePlayer = gameReducer(onePlayer, { type: 'START_GAME', now: 500 })
+  assert.equal(onePlayer.phase, PHASES.ODD_QUESTION)
 
   for (const id of ['one', 'two', 'three']) {
     state = gameReducer(state, {
@@ -314,7 +322,7 @@ test('the bonus round is reachable only from the scoreboard and leaves core roun
 
   state = gameReducer(state, { type: 'START_BONUS', now: 20_000 })
   assert.equal(state.phase, PHASES.CHAIN_QUESTION)
-  assert.equal(state.timerEndsAt, 20_000 + CHAIN_TIMING)
+  assert.equal(state.timerEndsAt, 20_000 + CHAIN_TIMING + SINGLE_SCREEN_TIME_BONUS)
 
   for (const retellingId of ['b', 'a', 'd', 'c']) {
     state = gameReducer(state, { type: 'TOGGLE_CHAIN', retellingId })

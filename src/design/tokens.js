@@ -6,6 +6,11 @@ export const palette = {
   ocean: '#2E86AB',
   lime: '#8BC34A',
   ink: '#1A1A1A',
+  'accent-correct': '#5D9E36',
+  'accent-incorrect': '#D93F45',
+  'accent-warning': '#B97700',
+  'accent-primary': '#D93F45',
+  'accent-secondary': '#236C8C',
 }
 
 export const fontFamilies = {
@@ -23,4 +28,18 @@ export const shadowTokens = {
   small: `3px 3px 0 0 ${palette.ink}`,
   hard: `5px 5px 0 0 ${palette.ink}`,
   large: `7px 7px 0 0 ${palette.ink}`,
+}
+
+export const motionTokens = {
+  fast: '100ms',
+  medium: '250ms',
+  slow: '500ms',
+}
+
+export const spacingTokens = {
+  xs: 'clamp(0.35rem, 0.7cqi, 0.5rem)',
+  sm: 'clamp(0.6rem, 1.2cqi, 0.85rem)',
+  md: 'clamp(0.9rem, 1.8cqi, 1.25rem)',
+  lg: 'clamp(1.35rem, 2.8cqi, 2rem)',
+  xl: 'clamp(2rem, 4cqi, 3rem)',
 }

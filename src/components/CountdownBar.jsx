@@ -47,9 +47,9 @@ export function CountdownBar({
 
   return (
     <div className={clsx('w-full', className)} aria-label={`${label}: ${seconds} seconds`} role="timer">
-      <div className="relative h-10 overflow-hidden rounded-full border-chunky border-ink bg-paper host:h-14">
+      <div className="relative h-7 overflow-hidden rounded-full border-chunky border-ink bg-paper sm:h-8 host:h-12">
         <div ref={fillRef} className="h-full origin-left bg-coral motion-reduce:transition-none" />
-        <span className="pointer-events-none absolute inset-y-0 right-5 flex items-center font-display text-xl font-bold tabular-nums text-ink host:text-4xl">
+        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center font-display text-sm font-bold tabular-nums text-ink sm:text-base host:text-3xl">
           {seconds}s
         </span>
       </div>

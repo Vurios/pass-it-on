@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { LoadingState } from './components/LoadingState.jsx'
 import { LandingScreen } from './screens/LandingScreen.jsx'
+import { HowToPlayScreen } from './screens/HowToPlayScreen.jsx'
+import { SettingsScreen } from './screens/SettingsScreen.jsx'
 import { SoloScreen } from './screens/SoloScreen.jsx'
 
 const HostScreen = lazy(() => (
@@ -21,6 +23,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingScreen />} />
+      <Route path="/how-to-play" element={<HowToPlayScreen />} />
+      <Route path="/settings" element={<SettingsScreen />} />
       <Route
         path="/host"
         element={(

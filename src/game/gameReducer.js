@@ -20,6 +20,11 @@ export const ROUND_TIMINGS = {
 
 /* The bonus round sits outside ROUND_TIMINGS so it can never lengthen a core session. */
 export const CHAIN_TIMING = 20_000
+export const SINGLE_SCREEN_TIME_BONUS = 5_000
+
+function roundTiming(state, round) {
+  return ROUND_TIMINGS[round] + (state.mode === 'solo' ? SINGLE_SCREEN_TIME_BONUS : 0)
+}
 
 const emptyRoundScores = () => ({ odd: 0, spin: 0, render: 0 })
 
@@ -38,6 +43,8 @@ export function createInitialGameState(session) {
       id: 'solo-room',
       name: 'House Team',
       score: 0,
+      streak: 0,
+      maxStreak: 0,
       roundScores: emptyRoundScores(),
       bonusScore: 0,
       answers: [],
@@ -53,6 +60,8 @@ function createMultiplayerPlayer(player) {
     avatar: player.avatar,
     connected: true,
     score: 0,
+    streak: 0,
+    maxStreak: 0,
     roundScores: emptyRoundScores(),
     bonusScore: 0,
     answers: [],
@@ -204,21 +213,29 @@ function encounter(state, item) {
 }
 
 function recordRoundAnswer(state, { round, itemId, selected, correctAnswer, score, elapsedMs }) {
+  const isCorrect = Array.isArray(correctAnswer)
+    ? scoreSpinDoctor({ selected, correctAnswer }) > 0
+    : selected === correctAnswer
+
+  const streak = isCorrect ? (state.player.streak || 0) + 1 : 0
+  const maxStreak = Math.max(state.player.maxStreak || 0, streak)
+
   const answer = {
     round,
     itemId,
     selected,
     correctAnswer,
-    correct: Array.isArray(correctAnswer)
-      ? scoreSpinDoctor({ selected, correctAnswer }) > 0
-      : selected === correctAnswer,
+    correct: isCorrect,
     score,
     elapsedMs,
+    streak,
   }
 
   return {
     ...state.player,
     score: state.player.score + score,
+    streak,
+    maxStreak,
     roundScores: {
       ...state.player.roundScores,
       [round]: state.player.roundScores[round] + score,
@@ -257,19 +274,25 @@ function revealMultiplayerOdd(state) {
     const selected = submitted?.answerId ?? null
     const elapsedMs = submitted?.elapsedMs ?? ROUND_TIMINGS.odd
     const score = scoreOddSourceOut({ selected, correctAnswer: item.correctAnswer, elapsedMs })
+    const isCorrect = selected === item.correctAnswer
+    const streak = isCorrect ? (player.streak || 0) + 1 : 0
+    const maxStreak = Math.max(player.maxStreak || 0, streak)
     const answer = {
       round: 'odd',
       itemId: item.id,
       selected,
       correctAnswer: item.correctAnswer,
-      correct: selected === item.correctAnswer,
+      correct: isCorrect,
       score,
       elapsedMs,
+      streak,
     }
 
     return {
       ...player,
       score: player.score + score,
+      streak,
+      maxStreak,
       roundScores: { ...player.roundScores, odd: player.roundScores.odd + score },
       answers: [...player.answers, answer],
     }
@@ -336,13 +359,18 @@ function revealMultiplayerSpin(state) {
     const selected = submitted?.selections ?? []
     const elapsedMs = submitted?.elapsedMs ?? ROUND_TIMINGS.spin
     const score = scoreSpinDoctor({ selected, correctAnswer: item.correctAnswer })
+    const isCorrect = score > 0
+    const streak = isCorrect ? (player.streak || 0) + 1 : 0
+    const maxStreak = Math.max(player.maxStreak || 0, streak)
     const answer = {
       round: 'spin', itemId: item.id, selected, correctAnswer: item.correctAnswer,
-      correct: score > 0, score, elapsedMs,
+      correct: isCorrect, score, elapsedMs, streak,
     }
     return {
       ...player,
       score: player.score + score,
+      streak,
+      maxStreak,
       roundScores: { ...player.roundScores, spin: player.roundScores.spin + score },
       answers: [...player.answers, answer],
     }
@@ -364,13 +392,18 @@ function revealMultiplayerRendered(state) {
     const selected = submitted?.answer ?? null
     const elapsedMs = submitted?.elapsedMs ?? ROUND_TIMINGS.render
     const score = scoreRealOrRendered({ selected, correctAnswer: item.correctAnswer })
+    const isCorrect = selected === item.correctAnswer
+    const streak = isCorrect ? (player.streak || 0) + 1 : 0
+    const maxStreak = Math.max(player.maxStreak || 0, streak)
     const answer = {
       round: 'render', itemId: item.id, selected, correctAnswer: item.correctAnswer,
-      correct: selected === item.correctAnswer, score, elapsedMs,
+      correct: isCorrect, score, elapsedMs, streak,
     }
     return {
       ...player,
       score: player.score + score,
+      streak,
+      maxStreak,
       roundScores: { ...player.roundScores, render: player.roundScores.render + score },
       answers: [...player.answers, answer],
     }
@@ -386,20 +419,26 @@ function revealMultiplayerRendered(state) {
 
 function recordBonusAnswer(player, { item, selected, elapsedMs }) {
   const score = scoreChainOfCustody({ selected, correctAnswer: item.correctAnswer })
+  const isCorrect = score > 0
+  const streak = isCorrect ? (player.streak || 0) + 1 : 0
+  const maxStreak = Math.max(player.maxStreak || 0, streak)
   const answer = {
     round: 'chain',
     itemId: item.id,
     selected,
     correctAnswer: item.correctAnswer,
-    correct: score > 0,
+    correct: isCorrect,
     score,
     elapsedMs,
+    streak,
   }
 
   return {
     ...player,
     score: player.score + score,
     bonusScore: (player.bonusScore ?? 0) + score,
+    streak,
+    maxStreak,
     answers: [...player.answers, answer],
   }
 }
@@ -502,11 +541,11 @@ export function gameReducer(state, action) {
       if (state.phase !== PHASES.LOBBY) return state
       if (state.mode === 'multiplayer') {
         const activePlayerCount = state.players.filter((player) => player.connected).length
-        if (activePlayerCount < 3 || activePlayerCount > 8) return state
+        if (activePlayerCount < 1 || activePlayerCount > 8) return state
       }
       return {
         ...state,
-        ...phaseClock(PHASES.ODD_QUESTION, action.now, ROUND_TIMINGS.odd),
+        ...phaseClock(PHASES.ODD_QUESTION, action.now, roundTiming(state, 'odd')),
         ...(state.mode === 'multiplayer' ? { oddAnswers: {} } : {}),
       }
 
@@ -597,7 +636,7 @@ export function gameReducer(state, action) {
       if (state.phase === PHASES.ODD_REVEAL) {
         return {
           ...state,
-          ...phaseClock(PHASES.SPIN_QUESTION, action.now, ROUND_TIMINGS.spin),
+          ...phaseClock(PHASES.SPIN_QUESTION, action.now, roundTiming(state, 'spin')),
           spinSelections: [],
           ...(state.mode === 'multiplayer' ? { spinAnswers: {} } : {}),
         }
@@ -605,7 +644,7 @@ export function gameReducer(state, action) {
       if (state.phase === PHASES.SPIN_REVEAL) {
         return {
           ...state,
-          ...phaseClock(PHASES.RENDER_QUESTION, action.now, ROUND_TIMINGS.render),
+          ...phaseClock(PHASES.RENDER_QUESTION, action.now, roundTiming(state, 'render')),
           renderIndex: 0,
           ...(state.mode === 'multiplayer' ? { renderAnswers: {} } : {}),
         }
@@ -617,7 +656,7 @@ export function gameReducer(state, action) {
         }
         return {
           ...state,
-          ...phaseClock(PHASES.RENDER_QUESTION, action.now, ROUND_TIMINGS.render),
+          ...phaseClock(PHASES.RENDER_QUESTION, action.now, roundTiming(state, 'render')),
           renderIndex: nextIndex,
           ...(state.mode === 'multiplayer' ? { renderAnswers: {} } : {}),
         }
@@ -662,7 +701,7 @@ export function gameReducer(state, action) {
         ...state,
         phase: PHASES.CHAIN_QUESTION,
         phaseStartedAt: action.now,
-        timerEndsAt: action.now + CHAIN_TIMING,
+        timerEndsAt: action.now + CHAIN_TIMING + (state.mode === 'solo' ? SINGLE_SCREEN_TIME_BONUS : 0),
         currentAnswer: null,
         chainSelections: [],
         ...(state.mode === 'multiplayer' ? { chainAnswers: {}, paused: false } : {}),

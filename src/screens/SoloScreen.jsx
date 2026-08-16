@@ -4,6 +4,7 @@ import {
   ArrowsDownUp,
   Article,
   Check,
+  Fire,
   ImageSquare,
   Play,
   SealCheck,
@@ -12,11 +13,12 @@ import {
   X,
 } from '@phosphor-icons/react'
 import confetti from 'canvas-confetti'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { BigButton } from '../components/BigButton.jsx'
 import { Card } from '../components/Card.jsx'
 import { CountdownBar } from '../components/CountdownBar.jsx'
 import { FabricatedStamp } from '../components/FabricatedStamp.jsx'
+import { LeaveConfirmModal } from '../components/LeaveConfirmModal.jsx'
 import { RecapCard } from '../components/RecapCard.jsx'
 import { SoundToggle } from '../components/SoundToggle.jsx'
 import { TopRail } from '../components/TopRail.jsx'
@@ -30,8 +32,8 @@ import {
   gameReducer,
 } from '../game/gameReducer.js'
 
-const sourceColours = ['bg-ocean', 'bg-coral', 'bg-lime', 'bg-sunshine']
-const sourceRevealColours = ['!bg-ocean', '!bg-coral', '!bg-lime', '!bg-sunshine']
+const sourceColours = ['bg-ocean text-white', 'bg-coral text-white', 'bg-lime text-ink', 'bg-sunshine text-ink']
+const sourceRevealColours = ['!bg-ocean !text-white', '!bg-coral !text-white', '!bg-lime !text-ink', '!bg-sunshine !text-ink']
 
 const soloSession = createGameSession('en')
 
@@ -73,14 +75,22 @@ function useRevealConfetti(state) {
   }, [state])
 }
 
-function GameHeader({ round, score, detail }) {
+function GameHeader({ round, score, streak, detail }) {
   return (
-    <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b-chunky border-ink pb-4">
+    <header className="mb-2 flex flex-wrap items-center justify-between gap-2 border-b-chunky border-ink pb-2 sm:mb-4 sm:pb-3">
       <div className="min-w-0 flex-1">
-        <p className="font-display text-lg font-bold uppercase tracking-[0.08em] host:text-5xl">{round}</p>
-        {detail && <p className="safe-copy font-body text-base font-semibold host:text-5xl">{detail}</p>}
+        <div className="flex items-center gap-2">
+          <p className="font-display text-sm font-bold uppercase tracking-[0.08em] sm:text-base host:text-4xl">{round}</p>
+          {(streak ?? 0) >= 2 && (
+            <span className="streak-pop inline-flex items-center gap-1 rounded-full border-2 border-ink bg-sunshine px-2 py-0.5 font-display text-xs font-bold shadow-hard-sm">
+              <Fire size={14} weight="fill" className="text-coral" />
+              <span>{streak}x Streak!</span>
+            </span>
+          )}
+        </div>
+        {detail && <p className="safe-copy line-clamp-1 font-body text-xs font-semibold sm:text-sm host:text-3xl">{detail}</p>}
       </div>
-      <div className="shrink-0 rounded-[14px] border-chunky border-ink bg-sunshine px-4 py-2 font-display text-2xl font-bold shadow-hard-sm host:text-5xl">
+      <div className="shrink-0 rounded-[12px] border-chunky border-ink bg-sunshine px-3 py-1 font-display text-base font-bold shadow-hard-sm sm:text-lg host:text-4xl">
         {score} points
       </div>
     </header>
@@ -104,25 +114,27 @@ function QuestionTimer({ state, onComplete, onSecondChange }) {
 
 function Lobby({ onStart }) {
   return (
-    <main className="solo-host dot-grid centre-column bg-cream px-5 py-10 text-ink">
-      <div className="mx-auto w-full max-w-3xl">
-        <Card fill="white" tilt="left" className="game-screen p-7 text-center sm:p-10">
-          <UsersThree className="mx-auto" size={74} weight="fill" aria-hidden="true" />
-          <p className="mt-3 font-display text-lg font-bold uppercase tracking-[0.08em] host:text-5xl">One screen mode</p>
-          <h1 className="mx-auto mt-2 max-w-2xl font-display text-5xl font-bold leading-none tracking-[-0.04em] sm:text-7xl host:text-8xl">
-            Gather round. Read together.
+    <main className="solo-host dot-grid centre-column bg-cream px-4 py-4 text-ink sm:px-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <Card fill="white" tilt="left" className="game-screen p-5 text-center sm:p-8">
+          <UsersThree className="mx-auto" size={54} weight="fill" aria-hidden="true" />
+          <p className="mt-2 font-display text-xs font-bold uppercase tracking-[0.08em] sm:text-sm host:text-4xl">
+            One Screen Mode
+          </p>
+          <h1 className="mx-auto mt-1 max-w-xl font-display text-3xl font-bold leading-tight tracking-[-0.03em] sm:text-5xl lg:text-6xl host:text-7xl">
+            Gather Round. Read Together.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl font-body text-xl font-medium leading-relaxed sm:text-2xl host:text-5xl">
+          <p className="mx-auto mt-3 max-w-lg font-body text-sm font-medium leading-relaxed sm:text-lg host:text-3xl">
             One person taps for the room. Three rounds, about four minutes, everyone answers out loud.
           </p>
-          <div className="mx-auto mt-8 grid max-w-xl gap-4 sm:grid-cols-[1fr_auto]">
-            <BigButton variant="coral" onClick={onStart} className="gap-3">
-              <Play size={28} weight="fill" aria-hidden="true" />
-              Start the game
+          <div className="mx-auto mt-6 grid max-w-md gap-3 sm:grid-cols-[1fr_auto]">
+            <BigButton variant="coral" onClick={onStart} className="!h-11 !min-h-0 gap-2 text-base sm:!h-13 sm:text-lg">
+              <Play size={22} weight="fill" aria-hidden="true" />
+              Start the Game
             </BigButton>
-            <BigButton as={Link} to="/" variant="sunshine" className="gap-2 sm:w-auto">
-              <ArrowLeft size={25} weight="bold" aria-hidden="true" />
-              Back
+            <BigButton as={Link} to="/" variant="sunshine" className="!h-11 !min-h-0 gap-1.5 sm:!h-13 sm:w-auto">
+              <ArrowLeft size={20} weight="bold" aria-hidden="true" />
+              <span>Back</span>
             </BigButton>
           </div>
         </Card>
@@ -136,19 +148,19 @@ function OddQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock })
 
   return (
     <GameLayout timer={<QuestionTimer state={state} onComplete={onTimeExpired} onSecondChange={onSecondChange} />}>
-      <GameHeader round="Round 1: Odd Source Out" score={state.player.score} detail="Which source is least credible for checking this event?" />
-      <h1 className="safe-copy text-center font-display text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl host:text-8xl">{item.material.event}</h1>
-      <div className="mt-7 grid gap-5 md:grid-cols-2">
+      <GameHeader round="Round 1: Odd Source Out" score={state.player.score} streak={state.player.streak} detail="Which source is least credible for checking this event?" />
+      <h1 className="safe-copy line-clamp-2 text-center font-display text-xl font-bold leading-tight sm:text-3xl lg:text-4xl host:text-6xl">{item.material.event}</h1>
+      <div className="mt-3 grid gap-3 sm:mt-5 sm:gap-4 md:grid-cols-2">
         {item.material.sources.map((source, index) => (
           <button
             key={source.id}
             type="button"
             onClick={() => { onLock(); dispatch({ type: 'ANSWER_ODD', answerId: source.id, now: Date.now() }) }}
-            className={`${sourceColours[index]} press min-h-44 rounded-[18px] border-chunky border-ink p-5 text-left text-ink shadow-hard focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink`}
+            className={`${sourceColours[index]} press min-h-24 rounded-[14px] border-chunky border-ink p-3.5 text-left shadow-hard focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink sm:min-h-32 sm:p-4`}
           >
-            <span className="font-display text-4xl font-bold host:text-6xl">{source.label}</span>
-            <span className="safe-copy ml-3 font-body text-base font-bold uppercase tracking-[0.06em] host:text-5xl">{source.source}</span>
-            <span className="safe-copy mt-4 block font-display text-2xl font-semibold leading-tight sm:text-3xl host:text-5xl">{source.headline}</span>
+            <span className="font-display text-2xl font-bold sm:text-3xl host:text-5xl">{source.label}</span>
+            <span className="safe-copy ml-2.5 font-body text-xs font-bold uppercase tracking-[0.06em] sm:text-sm host:text-3xl">{source.source}</span>
+            <span className="safe-copy mt-2 block line-clamp-2 font-display text-base font-semibold leading-snug sm:text-xl host:text-3xl">{source.headline}</span>
           </button>
         ))}
       </div>
@@ -163,31 +175,31 @@ function OddReveal({ state, dispatch }) {
 
   return (
     <GameLayout>
-      <GameHeader round="Round 1 reveal" score={state.player.score} detail={isRight ? 'Good catch.' : 'Here is the strongest warning sign.'} />
-      <div className="grid gap-4 md:grid-cols-2 host:grid-cols-4">
+      <GameHeader round="Round 1 Reveal" score={state.player.score} streak={state.player.streak} detail={state.currentAnswer === null ? "Time's up! Here is the strongest warning sign." : isRight ? 'Good catch.' : 'Here is the strongest warning sign.'} />
+      <div className="grid gap-2.5 sm:gap-3 md:grid-cols-2 host:grid-cols-4">
         {item.material.sources.map((source, index) => {
           const correct = source.id === item.correctAnswer
           return (
             <Card
               key={source.id}
               fill="white"
-              className={`${sourceRevealColours[index]} ${correct ? 'outline-8 outline-sunshine' : 'opacity-45'}`}
+              className={`${sourceRevealColours[index]} ${correct ? 'outline-6 outline-sunshine' : 'opacity-45'} p-3 sm:p-4`}
             >
-              <p className="safe-copy font-display text-3xl font-bold host:text-5xl">{source.label}: {source.source}</p>
-              <p className="safe-copy mt-3 font-body text-xl font-semibold leading-snug host:text-5xl">{source.headline}</p>
+              <p className="safe-copy font-display text-lg font-bold sm:text-xl host:text-3xl">{source.label}: {source.source}</p>
+              <p className="safe-copy mt-1 line-clamp-2 font-body text-xs font-semibold leading-snug sm:text-sm host:text-2xl">{source.headline}</p>
             </Card>
           )
         })}
       </div>
-      <Card className="reveal-banner mt-6 bg-paper p-6" tilt="right">
-        <div className="flex flex-wrap items-center gap-3">
-          <SealCheck size={42} weight="fill" aria-hidden="true" />
-          <h2 className="safe-copy font-display text-3xl font-bold host:text-6xl">{answer.source}: {item.technique}</h2>
+      <Card className="reveal-banner mt-3 bg-paper p-3.5 sm:mt-4 sm:p-4" tilt="right">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <SealCheck size={32} weight="fill" aria-hidden="true" />
+          <h2 className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{answer?.source}: {item.technique}</h2>
           {item.fabricated && <FabricatedStamp />}
         </div>
-        <p className="safe-copy mt-3 font-body text-xl font-medium leading-relaxed sm:text-2xl host:text-5xl">{item.explanation}</p>
+        <p className="safe-copy mt-2 font-body text-sm font-medium leading-relaxed sm:text-base host:text-3xl">{item.explanation}</p>
       </Card>
-      <BigButton variant="ocean" className="mx-auto mt-6 max-w-xl host:text-5xl" onClick={() => dispatch({ type: 'NEXT_PHASE', now: Date.now() })}>
+      <BigButton variant="ocean" className="mx-auto mt-4 !h-11 !min-h-0 max-w-md text-base sm:!h-12 host:text-3xl" onClick={() => dispatch({ type: 'NEXT_PHASE', now: Date.now() })}>
         Next: Spin Doctor
       </BigButton>
     </GameLayout>
@@ -199,8 +211,8 @@ function SpinQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock }
 
   return (
     <GameLayout timer={<QuestionTimer state={state} onComplete={onTimeExpired} onSecondChange={onSecondChange} />}>
-      <GameHeader round="Round 2: Spin Doctor" score={state.player.score} detail="Flag up to three phrases doing persuasive work." />
-      <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-4 py-8">
+      <GameHeader round="Round 2: Spin Doctor" score={state.player.score} streak={state.player.streak} detail="Flag up to three phrases doing persuasive work." />
+      <div className="mx-auto my-auto flex max-w-4xl flex-wrap justify-center gap-2.5 py-4 sm:gap-3">
         {item.material.phrases.map((phrase, index) => {
           const selected = state.spinSelections.includes(index)
           return (
@@ -209,21 +221,21 @@ function SpinQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock }
               key={phrase}
               aria-pressed={selected}
               onClick={() => dispatch({ type: 'TOGGLE_SPIN', phraseIndex: index })}
-              className={`${selected ? 'press-held bg-coral' : 'press bg-paper shadow-hard'} safe-copy min-h-16 max-w-full rounded-full border-chunky border-ink px-6 py-4 font-display text-2xl font-bold leading-tight focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink sm:text-3xl host:text-6xl`}
+              className={`${selected ? 'press-held bg-coral text-white' : 'press bg-paper shadow-hard'} safe-copy rounded-full border-chunky border-ink px-4 py-2.5 font-display text-base font-bold leading-tight sm:px-6 sm:py-3.5 sm:text-xl host:text-4xl`}
             >
               {phrase}
             </button>
           )
         })}
       </div>
-      <p className="text-center font-display text-xl font-bold host:text-5xl">{state.spinSelections.length} of 3 flagged</p>
+      <p className="text-center font-display text-sm font-bold sm:text-base host:text-3xl">{state.spinSelections.length} of 3 flagged</p>
       <BigButton
         variant="coral"
-        className="mx-auto mt-5 max-w-xl host:text-5xl"
+        className="mx-auto mt-3 !h-11 !min-h-0 max-w-md text-base sm:!h-13 sm:text-lg host:text-3xl"
         disabled={state.spinSelections.length === 0}
         onClick={() => { onLock(); dispatch({ type: 'SUBMIT_SPIN', now: Date.now() }) }}
       >
-        Lock these phrases
+        Lock These Phrases
       </BigButton>
     </GameLayout>
   )
@@ -236,32 +248,32 @@ function SpinReveal({ state, dispatch }) {
 
   return (
     <GameLayout>
-      <GameHeader round="Round 2 reveal" score={state.player.score} detail="Scepticism needs evidence, not suspicion of everything." />
-      <div className="mx-auto grid max-w-6xl gap-4 py-3 sm:grid-cols-2 host:grid-cols-4">
+      <GameHeader round="Round 2 Reveal" score={state.player.score} streak={state.player.streak} detail="Scepticism needs evidence, not suspicion of everything." />
+      <div className="mx-auto grid max-w-4xl gap-2.5 py-2 sm:grid-cols-2 host:grid-cols-4">
         {item.material.phrases.map((phrase, index) => {
           const isCorrectPhrase = correct.has(index)
           const isWrongFlag = selected.has(index) && !isCorrectPhrase
           return (
-            <Card key={phrase} fill="white" className={isCorrectPhrase ? '!bg-coral' : ''}>
-              <div className="flex items-start gap-3">
-                {isCorrectPhrase && <Check size={32} weight="bold" aria-label="Manipulative phrase" />}
-                {isWrongFlag && <X size={32} weight="bold" aria-label="Incorrect flag" />}
-                <p className="safe-copy font-display text-2xl font-bold sm:text-3xl host:text-5xl">{phrase}</p>
+            <Card key={phrase} fill="white" className={isCorrectPhrase ? '!bg-coral !text-white' : 'p-3'}>
+              <div className="flex items-start gap-2">
+                {isCorrectPhrase && <Check size={24} weight="bold" aria-label="Manipulative phrase" />}
+                {isWrongFlag && <X size={24} weight="bold" aria-label="Incorrect flag" />}
+                <p className="safe-copy font-display text-base font-bold sm:text-lg host:text-3xl">{phrase}</p>
               </div>
-              {isCorrectPhrase && <p className="safe-copy mt-3 font-body text-lg font-bold host:text-5xl">{item.technique}</p>}
-              {isWrongFlag && <p className="safe-copy mt-3 font-body text-lg font-bold host:text-5xl">This phrase was not one of the manipulation signals.</p>}
+              {isCorrectPhrase && <p className="safe-copy mt-1 font-body text-xs font-bold sm:text-sm host:text-2xl">{item.technique}</p>}
+              {isWrongFlag && <p className="safe-copy mt-1 font-body text-xs font-bold text-coral sm:text-sm">This phrase was not one of the manipulation signals.</p>}
             </Card>
           )
         })}
       </div>
-      <Card className="reveal-banner mt-5 bg-paper p-6" tilt="left">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="safe-copy font-display text-3xl font-bold host:text-6xl">{item.technique}</h2>
+      <Card className="reveal-banner mt-3 bg-paper p-3.5 sm:p-4" tilt="left">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{item.technique}</h2>
           {item.fabricated && <FabricatedStamp />}
         </div>
-        <p className="safe-copy mt-3 font-body text-xl font-medium leading-relaxed sm:text-2xl host:text-5xl">{item.explanation}</p>
+        <p className="safe-copy mt-1.5 font-body text-sm font-medium leading-relaxed sm:text-base host:text-3xl">{item.explanation}</p>
       </Card>
-      <BigButton variant="lime" className="mx-auto mt-6 max-w-xl host:text-5xl" onClick={() => dispatch({ type: 'NEXT_PHASE', now: Date.now() })}>
+      <BigButton variant="lime" className="mx-auto mt-4 !h-11 !min-h-0 max-w-md text-base sm:!h-12 host:text-3xl" onClick={() => dispatch({ type: 'NEXT_PHASE', now: Date.now() })}>
         Next: Real or Rendered
       </BigButton>
     </GameLayout>
@@ -277,18 +289,19 @@ function RenderQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock
       <GameHeader
         round="Round 3: Real or Rendered"
         score={state.player.score}
+        streak={state.player.streak}
         detail={`Item ${state.renderIndex + 1} of ${state.session.renderItems.length}`}
       />
-      <Card fill="white" tilt={state.renderIndex % 2 ? 'right' : 'left'} className="mx-auto flex min-h-64 max-w-5xl flex-col items-center justify-center p-8 text-center">
-        <ItemIcon size={72} weight="fill" aria-hidden="true" />
-        <p className="safe-copy mt-5 font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl host:text-8xl">{item.material.prompt}</p>
+      <Card fill="white" tilt={state.renderIndex % 2 ? 'right' : 'left'} className="mx-auto my-auto flex max-w-3xl flex-col items-center justify-center p-5 text-center sm:p-8">
+        <ItemIcon size={52} weight="fill" aria-hidden="true" />
+        <p className="safe-copy mt-3 font-display text-xl font-bold leading-tight sm:text-3xl lg:text-4xl host:text-6xl">{item.material.prompt}</p>
       </Card>
-      <div className="mx-auto mt-8 grid max-w-5xl gap-5 sm:grid-cols-2">
-        <BigButton variant="ocean" className="min-h-28 text-4xl host:text-7xl" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'real', now: Date.now() }) }}>
-          REAL
+      <div className="mx-auto mt-4 grid max-w-2xl gap-3 sm:grid-cols-2">
+        <BigButton variant="ocean" className="!h-14 !min-h-0 text-3xl sm:!h-16 sm:text-4xl host:text-6xl" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'real', now: Date.now() }) }}>
+          Real
         </BigButton>
-        <BigButton variant="coral" className="min-h-28 text-4xl host:text-7xl" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'rendered', now: Date.now() }) }}>
-          RENDERED
+        <BigButton variant="coral" className="!h-14 !min-h-0 text-3xl sm:!h-16 sm:text-4xl host:text-6xl" onClick={() => { onLock(); dispatch({ type: 'ANSWER_RENDER', answer: 'rendered', now: Date.now() }) }}>
+          Rendered
         </BigButton>
       </div>
     </GameLayout>
@@ -302,18 +315,19 @@ function RenderReveal({ state }) {
   return (
     <GameLayout>
       <GameHeader
-        round="Round 3 reveal"
+        round="Round 3 Reveal"
         score={state.player.score}
+        streak={state.player.streak}
         detail={`Item ${state.renderIndex + 1} of ${state.session.renderItems.length}`}
       />
-      <Card fill="white" tilt="right" className={`${correct ? '!bg-lime' : '!bg-sunshine'} mx-auto max-w-5xl p-8 text-center`}>
-        {correct ? <Check className="mx-auto" size={78} weight="bold" aria-hidden="true" /> : <X className="mx-auto" size={78} weight="bold" aria-hidden="true" />}
-        <p className="mt-3 font-display text-5xl font-bold host:text-8xl">{item.correctAnswer.toUpperCase()}</p>
-        <h2 className="safe-copy mt-6 font-display text-3xl font-bold sm:text-4xl host:text-6xl">The tell: {item.technique}</h2>
-        <p className="safe-copy mt-4 font-body text-xl font-medium leading-relaxed sm:text-2xl host:text-5xl">{item.explanation}</p>
-        {item.fabricated && <FabricatedStamp className="mt-6" />}
+      <Card fill="white" tilt="right" className={`${correct ? '!bg-lime' : '!bg-sunshine'} mx-auto my-auto max-w-3xl p-5 text-center sm:p-8`}>
+        {correct ? <Check className="mx-auto" size={54} weight="bold" aria-hidden="true" /> : <X className="mx-auto" size={54} weight="bold" aria-hidden="true" />}
+        <p className="mt-2 font-display text-3xl font-bold capitalize sm:text-5xl host:text-7xl">{item.correctAnswer}</p>
+        <h2 className="safe-copy mt-3 font-display text-xl font-bold sm:text-2xl host:text-4xl">The tell: {item.technique}</h2>
+        <p className="safe-copy mt-2 font-body text-sm font-medium leading-relaxed sm:text-base host:text-3xl">{item.explanation}</p>
+        {item.fabricated && <FabricatedStamp className="mt-4" />}
       </Card>
-      <p className="mt-7 text-center font-display text-xl font-bold host:text-5xl">Next one, coming right up.</p>
+      <p className="mt-3 text-center font-display text-sm font-bold sm:text-base host:text-3xl">Next one coming right up.</p>
     </GameLayout>
   )
 }
@@ -325,9 +339,9 @@ function ChainQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock 
 
   return (
     <GameLayout timer={<QuestionTimer state={state} onComplete={onTimeExpired} onSecondChange={onSecondChange} />}>
-      <GameHeader round="Bonus round: Chain of Custody" score={state.player.score} detail="Tap the retellings in the order they most likely happened, first to last." />
-      <h1 className="safe-copy text-center font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl host:text-8xl">{item.material.claim}</h1>
-      <div className="mt-7 grid gap-5 md:grid-cols-2">
+      <GameHeader round="Bonus Round: Chain of Custody" score={state.player.score} streak={state.player.streak} detail="Tap the retellings in the order they most likely happened, first to last." />
+      <h1 className="safe-copy text-center font-display text-xl font-bold leading-tight sm:text-2xl host:text-4xl">{item.material.claim}</h1>
+      <div className="mt-3 grid gap-2.5 sm:gap-3 md:grid-cols-2">
         {item.material.retellings.map((retelling, index) => {
           const position = selections.indexOf(retelling.id)
           const chosen = position >= 0
@@ -337,31 +351,31 @@ function ChainQuestion({ state, dispatch, onTimeExpired, onSecondChange, onLock 
               type="button"
               aria-pressed={chosen}
               onClick={() => { onLock(); dispatch({ type: 'TOGGLE_CHAIN', retellingId: retelling.id }) }}
-              className={`${sourceColours[index]} ${chosen ? 'press-held' : 'press shadow-hard'} min-h-40 rounded-[18px] border-chunky border-ink p-5 text-left text-ink focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink`}
+              className={`${sourceColours[index]} ${chosen ? 'press-held' : 'press shadow-hard'} min-h-24 rounded-[14px] border-chunky border-ink p-3 text-left focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-ink sm:p-4`}
             >
-              <span className="flex items-center gap-4">
-                <span className="font-display text-4xl font-bold host:text-6xl">{retelling.label}</span>
-                <span className={`${chosen ? 'bg-paper' : 'bg-cream opacity-60'} grid h-12 w-12 shrink-0 place-items-center rounded-full border-chunky border-ink font-display text-2xl font-bold host:h-20 host:w-20 host:text-5xl`}>
+              <span className="flex items-center gap-3">
+                <span className="font-display text-2xl font-bold host:text-4xl">{retelling.label}</span>
+                <span className={`${chosen ? 'bg-paper text-ink' : 'bg-cream text-ink opacity-60'} grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-ink font-display text-base font-bold sm:h-9 sm:w-9`}>
                   {chosen ? position + 1 : '?'}
                 </span>
               </span>
-              <span className="safe-copy mt-4 block font-display text-2xl font-semibold leading-tight sm:text-3xl host:text-5xl">{retelling.text}</span>
+              <span className="safe-copy mt-2 block line-clamp-2 font-display text-sm font-semibold leading-snug sm:text-base host:text-2xl">{retelling.text}</span>
             </button>
           )
         })}
       </div>
-      <div className="mx-auto mt-7 grid max-w-3xl gap-4 sm:grid-cols-[1fr_auto]">
+      <div className="mx-auto mt-4 grid max-w-xl gap-2.5 sm:grid-cols-[1fr_auto]">
         <BigButton
           variant="coral"
-          className="host:text-5xl"
+          className="!h-11 !min-h-0 text-base sm:!h-12 host:text-3xl"
           disabled={!full}
           onClick={() => { onLock(); dispatch({ type: 'SUBMIT_CHAIN', now: Date.now() }) }}
         >
-          {full ? 'Lock the chain' : `Ordered ${selections.length} of ${item.material.retellings.length}`}
+          {full ? 'Lock the Chain' : `Ordered ${selections.length} of ${item.material.retellings.length}`}
         </BigButton>
-        <BigButton variant="sunshine" className="gap-2 sm:w-auto host:text-5xl" disabled={selections.length === 0} onClick={() => dispatch({ type: 'RESET_CHAIN' })}>
-          <ArrowsDownUp size={26} weight="bold" aria-hidden="true" />
-          Start over
+        <BigButton variant="sunshine" className="!h-11 !min-h-0 gap-1 sm:!h-12 sm:w-auto text-sm host:text-3xl" disabled={selections.length === 0} onClick={() => dispatch({ type: 'RESET_CHAIN' })}>
+          <ArrowsDownUp size={18} weight="bold" aria-hidden="true" />
+          Start Over
         </BigButton>
       </div>
     </GameLayout>
@@ -375,28 +389,28 @@ function ChainReveal({ state, dispatch }) {
 
   return (
     <GameLayout>
-      <GameHeader round="Bonus reveal" score={state.player.score} detail={`You scored ${answer?.score ?? 0} on the chain.`} />
-      <ol className="grid gap-4 lg:grid-cols-2 host:grid-cols-4">
+      <GameHeader round="Bonus Reveal" score={state.player.score} streak={state.player.streak} detail={`You scored ${answer?.score ?? 0} on the chain.`} />
+      <ol className="grid gap-2.5 lg:grid-cols-2 host:grid-cols-4">
         {ordered.map((retelling, index) => (
           <li key={retelling.id}>
-            <Card fill="white" tilt={index % 2 ? 'right' : 'left'} className={index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral' : ''}>
-              <p className="safe-copy font-display text-2xl font-bold sm:text-3xl host:text-5xl">
-                <span className="text-ink/55">{index + 1}. </span>{retelling.text}
+            <Card fill="white" tilt={index % 2 ? 'right' : 'left'} className={`${index === 0 ? '!bg-lime' : index === ordered.length - 1 ? '!bg-coral !text-white' : ''} p-3`}>
+              <p className="safe-copy font-display text-sm font-bold sm:text-base host:text-3xl">
+                <span className="opacity-60">{index + 1}. </span>{retelling.text}
               </p>
-              <p className="safe-copy mt-3 font-body text-lg font-semibold host:text-4xl">{retelling.note}</p>
+              <p className="safe-copy mt-1 font-body text-xs font-semibold host:text-2xl">{retelling.note}</p>
             </Card>
           </li>
         ))}
       </ol>
-      <Card className="reveal-banner mt-7 bg-paper p-6" tilt="left">
-        <div className="flex flex-wrap items-center gap-3">
-          <h2 className="safe-copy font-display text-3xl font-bold host:text-6xl">{item.technique}</h2>
+      <Card className="reveal-banner mt-3 bg-paper p-3 sm:p-4" tilt="left">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="safe-copy font-display text-xl font-bold sm:text-2xl host:text-4xl">{item.technique}</h2>
           {item.fabricated && <FabricatedStamp />}
         </div>
-        <p className="safe-copy mt-3 font-body text-xl font-medium leading-relaxed sm:text-2xl host:text-5xl">{item.explanation}</p>
+        <p className="safe-copy mt-1 font-body text-sm font-medium leading-relaxed sm:text-base host:text-3xl">{item.explanation}</p>
       </Card>
-      <BigButton variant="ocean" className="mx-auto mt-7 max-w-xl host:text-5xl" onClick={() => dispatch({ type: 'END_BONUS' })}>
-        Back to the scores
+      <BigButton variant="ocean" className="mx-auto mt-4 !h-11 !min-h-0 max-w-md text-base sm:!h-12 host:text-3xl" onClick={() => dispatch({ type: 'END_BONUS' })}>
+        Back to Scores
       </BigButton>
     </GameLayout>
   )
@@ -408,26 +422,30 @@ function Scoreboard({ state, onRecap, onPlayAgain }) {
 
   return (
     <GameLayout>
-      <GameHeader round="Final scoreboard" score={state.player.score} detail="You made it through every round." />
-      <Card fill="white" tilt="left" className="mx-auto max-w-5xl p-8 text-center">
-        <Star className="mx-auto" size={82} weight="fill" aria-hidden="true" />
-        <p className="mt-3 font-body text-xl font-bold host:text-5xl">House Team</p>
-        <h1 className="mt-2 font-display text-6xl font-bold leading-none sm:text-8xl">{state.player.score}</h1>
-        <p className="mt-4 font-display text-3xl font-bold text-ocean sm:text-4xl host:text-6xl">{title}</p>
-        <div className="mx-auto mt-8 grid max-w-3xl gap-4 sm:grid-cols-3">
-          <ScoreTile label="Odd Source Out" score={state.player.roundScores.odd} colour="bg-ocean" />
-          <ScoreTile label="Spin Doctor" score={state.player.roundScores.spin} colour="bg-coral" />
-          <ScoreTile label="Real or Rendered" score={state.player.roundScores.render} colour="bg-lime" />
+      <GameHeader round="Final Scoreboard" score={state.player.score} detail="You made it through every round." />
+      <Card fill="white" tilt="left" className="mx-auto max-w-3xl p-5 text-center sm:p-7">
+        <Star className="mx-auto text-sunshine" size={54} weight="fill" aria-hidden="true" />
+        <p className="mt-1 font-body text-sm font-bold host:text-3xl">Room Score</p>
+        <h1 className="mt-1 font-display text-4xl font-bold leading-none sm:text-6xl">{state.player.score}</h1>
+        <p className="mt-2 font-display text-xl font-bold text-ocean sm:text-2xl host:text-4xl">{title}</p>
+        <div className="mx-auto mt-4 grid max-w-xl gap-2.5 sm:grid-cols-3">
+          <ScoreTile label="Odd Source Out" score={state.player.roundScores.odd} colour="bg-ocean text-white" />
+          <ScoreTile label="Spin Doctor" score={state.player.roundScores.spin} colour="bg-coral text-white" />
+          <ScoreTile label="Real or Rendered" score={state.player.roundScores.render} colour="bg-lime text-ink" />
         </div>
         {bonus > 0 && (
-          <div className="mx-auto mt-4 max-w-3xl">
-            <ScoreTile label="Bonus: Chain of Custody" score={bonus} colour="bg-sunshine" />
+          <div className="mx-auto mt-2.5 max-w-xl">
+            <ScoreTile label="Bonus: Chain of Custody" score={bonus} colour="bg-sunshine text-ink" />
           </div>
         )}
       </Card>
-      <div className="mx-auto mt-8 grid max-w-4xl gap-5 sm:grid-cols-2">
-        <BigButton variant="sunshine" className="host:text-5xl" onClick={onRecap}>See what you learned</BigButton>
-        <BigButton variant="coral" className="host:text-5xl" onClick={onPlayAgain}>Play again</BigButton>
+      <div className="mx-auto mt-4 grid max-w-xl gap-3 sm:grid-cols-2">
+        <BigButton variant="sunshine" className="!h-11 !min-h-0 text-base sm:!h-12 host:text-3xl" onClick={onRecap}>
+          See What You Learned
+        </BigButton>
+        <BigButton variant="coral" className="!h-11 !min-h-0 text-base sm:!h-12 host:text-3xl" onClick={onPlayAgain}>
+          Play Again
+        </BigButton>
       </div>
     </GameLayout>
   )
@@ -435,18 +453,18 @@ function Scoreboard({ state, onRecap, onPlayAgain }) {
 
 function ScoreTile({ label, score, colour }) {
   return (
-    <div className={`${colour} rounded-[16px] border-chunky border-ink p-4 shadow-hard-sm`}>
-      <p className="safe-copy font-body text-sm font-bold uppercase tracking-[0.05em] host:text-5xl">{label}</p>
-      <p className="mt-2 font-display text-4xl font-bold host:text-6xl">{score}</p>
+    <div className={`${colour} rounded-[12px] border-chunky border-ink p-2.5 shadow-hard-sm`}>
+      <p className="safe-copy font-body text-xs font-bold uppercase tracking-[0.05em] host:text-2xl">{label}</p>
+      <p className="mt-1 font-display text-2xl font-bold host:text-4xl">{score}</p>
     </div>
   )
 }
 
 function GameLayout({ children, timer }) {
   return (
-    <main className="solo-host dot-grid flex screen-min-h flex-col bg-cream px-4 py-5 text-ink sm:px-8 sm:py-7">
-      <div className="game-screen mx-auto flex w-full max-w-[1500px] flex-1 flex-col">
-        <div className="flex-1">{children}</div>
+    <main className="solo-host dot-grid screen-min-h flex flex-col justify-between bg-cream px-3 py-2 text-ink sm:px-6 sm:py-3">
+      <div className="game-screen mx-auto flex h-full w-full max-w-[1400px] flex-1 flex-col justify-between overflow-hidden">
+        <div className="flex-1 overflow-hidden">{children}</div>
         {timer}
       </div>
     </main>
@@ -454,9 +472,11 @@ function GameLayout({ children, timer }) {
 }
 
 export function SoloScreen() {
+  const navigate = useNavigate()
   const sound = useSessionSound()
   const [state, dispatch] = useReducer(gameReducer, soloSession, createInitialGameState)
   const [showRecap, setShowRecap] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
   useRevealConfetti(state)
   const lastSoundKey = useRef('')
 
@@ -505,49 +525,72 @@ export function SoloScreen() {
     dispatch({ type: 'START_BONUS', now: Date.now() })
   }
 
-  const soundToggle = <TopRail><SoundToggle muted={sound.muted} onToggle={sound.toggleMuted} /></TopRail>
+  const handleBackClick = () => {
+    if (state.phase === PHASES.LOBBY || state.phase === PHASES.SCOREBOARD || showRecap) {
+      if (showRecap) setShowRecap(false)
+      else navigate('/')
+    } else {
+      setShowLeaveConfirm(true)
+    }
+  }
+
+  const handleConfirmLeave = () => {
+    setShowLeaveConfirm(false)
+    navigate('/')
+  }
+
+  const soundToggle = (
+    <TopRail onBack={handleBackClick} backAriaLabel="Back to Menu">
+      <SoundToggle muted={sound.muted} onToggle={sound.toggleMuted} />
+    </TopRail>
+  )
   const lockSound = () => sound.play(SOUND_CUES.LOCK)
   const bonusPlayed = state.player.answers.some((answer) => answer.round === 'chain')
 
+  let content
   if (showRecap) {
-    return (
-      <>{soundToggle}
-        <RecapCard
-          state={state}
-          onBack={() => setShowRecap(false)}
-          onPlayAgain={playAgain}
-          onBonus={bonusPlayed ? undefined : startBonus}
-        />
-        
-      </>
+    content = (
+      <RecapCard
+        state={state}
+        onBack={() => setShowRecap(false)}
+        onPlayAgain={playAgain}
+        onMenu={() => navigate('/')}
+        onBonus={bonusPlayed ? undefined : startBonus}
+      />
     )
+  } else if (state.phase === PHASES.LOBBY) {
+    content = <Lobby onStart={() => dispatch({ type: 'START_GAME', now: Date.now() })} />
+  } else if (state.phase === PHASES.ODD_QUESTION) {
+    content = <OddQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} />
+  } else if (state.phase === PHASES.ODD_REVEAL) {
+    content = <OddReveal state={state} dispatch={dispatch} />
+  } else if (state.phase === PHASES.SPIN_QUESTION) {
+    content = <SpinQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} />
+  } else if (state.phase === PHASES.SPIN_REVEAL) {
+    content = <SpinReveal state={state} dispatch={dispatch} />
+  } else if (state.phase === PHASES.RENDER_QUESTION) {
+    content = <RenderQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} />
+  } else if (state.phase === PHASES.RENDER_REVEAL) {
+    content = <RenderReveal state={state} />
+  } else if (state.phase === PHASES.CHAIN_QUESTION) {
+    content = <ChainQuestion state={state} dispatch={dispatch} onTimeExpired={onChainTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} />
+  } else if (state.phase === PHASES.CHAIN_REVEAL) {
+    content = <ChainReveal state={state} dispatch={dispatch} />
+  } else {
+    content = <Scoreboard state={state} onRecap={() => setShowRecap(true)} onPlayAgain={playAgain} />
   }
-  if (state.phase === PHASES.LOBBY) {
-    return <>{soundToggle}<Lobby onStart={() => dispatch({ type: 'START_GAME', now: Date.now() })} /></>
-  }
-  if (state.phase === PHASES.ODD_QUESTION) {
-    return <>{soundToggle}<OddQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} /></>
-  }
-  if (state.phase === PHASES.ODD_REVEAL) {
-    return <>{soundToggle}<OddReveal state={state} dispatch={dispatch} /></>
-  }
-  if (state.phase === PHASES.SPIN_QUESTION) {
-    return <>{soundToggle}<SpinQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} /></>
-  }
-  if (state.phase === PHASES.SPIN_REVEAL) {
-    return <>{soundToggle}<SpinReveal state={state} dispatch={dispatch} /></>
-  }
-  if (state.phase === PHASES.RENDER_QUESTION) {
-    return <>{soundToggle}<RenderQuestion state={state} dispatch={dispatch} onTimeExpired={onTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} /></>
-  }
-  if (state.phase === PHASES.RENDER_REVEAL) {
-    return <>{soundToggle}<RenderReveal state={state} /></>
-  }
-  if (state.phase === PHASES.CHAIN_QUESTION) {
-    return <>{soundToggle}<ChainQuestion state={state} dispatch={dispatch} onTimeExpired={onChainTimeExpired} onSecondChange={sound.onCountdownSecond} onLock={lockSound} /></>
-  }
-  if (state.phase === PHASES.CHAIN_REVEAL) {
-    return <>{soundToggle}<ChainReveal state={state} dispatch={dispatch} /></>
-  }
-  return <>{soundToggle}<Scoreboard state={state} onRecap={() => setShowRecap(true)} onPlayAgain={playAgain} /></>
+
+  return (
+    <>
+      {soundToggle}
+      {content}
+      <LeaveConfirmModal
+        open={showLeaveConfirm}
+        onConfirm={handleConfirmLeave}
+        onCancel={() => setShowLeaveConfirm(false)}
+        title="Leave Solo Game?"
+        message="Are you sure you want to exit your game and return to the main menu? Progress will be lost."
+      />
+    </>
+  )
 }

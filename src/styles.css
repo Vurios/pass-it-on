@@ -1,62 +1,112 @@
-@import "tailwindcss" source(none);
-@source "./";
+@import "tailwindcss";
 @config "../tailwind.config.js";
 
-/* Television and projector territory, where the Part 3.7 reading sizes apply.
-   Declared here rather than in the config so it sorts after every default
-   breakpoint and wins against sm: and lg: sizes on the same element. */
+/* Television and projector territory, where reading sizes apply. */
 @theme {
   --breakpoint-host: 100rem;
 }
 
 :root {
-  font-family: 'Space Grotesk', Arial, sans-serif;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #1A1A1A;
   background: #FFF8ED;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 
-  /* Height reserved for the fixed host control bar, so the countdown dock and
-     the pause overlay can sit above it instead of on top of it. */
-  --host-control-height: 7rem;
-  /* Height of the sticky toggle rail that every screen sits beneath. */
-  --top-rail-height: 5.25rem;
+  /* Fluid height reserved for the fixed host control bar */
+  --host-control-height: clamp(3.75rem, 8dvh, 4.75rem);
+  /* Fluid height of the sticky toggle rail that every screen sits beneath */
+  --top-rail-height: clamp(3.25rem, 6dvh, 3.85rem);
+  --color-cream: #FFF8ED;
+  --color-ink: #1A1A1A;
+  --accent-correct: #5D9E36;
+  --accent-incorrect: #D93F45;
+  --accent-warning: #B97700;
+  --accent-primary: #D93F45;
+  --accent-secondary: #236C8C;
+  --space-xs: clamp(0.35rem, 0.7cqi, 0.5rem);
+  --space-sm: clamp(0.6rem, 1.2cqi, 0.85rem);
+  --space-md: clamp(0.9rem, 1.8cqi, 1.25rem);
+  --space-lg: clamp(1.35rem, 2.8cqi, 2rem);
+  --space-xl: clamp(2rem, 4cqi, 3rem);
+  --transition-fast: 100ms;
+  --transition-medium: 250ms;
+  --transition-slow: 500ms;
+  --shadow-card: 4px 4px 0 #1A1A1A;
+  --shadow-pressed: 2px 2px 0 #1A1A1A;
 }
 
 @media (min-width: 1600px) {
   :root {
-    --host-control-height: 7.5rem;
+    --host-control-height: clamp(4.5rem, 9dvh, 6rem);
+    --top-rail-height: clamp(3.75rem, 7dvh, 4.5rem);
   }
-}
-
-.top-rail {
-  min-height: var(--top-rail-height);
-  padding-top: max(0.5rem, env(safe-area-inset-top));
-  padding-bottom: 0.5rem;
-}
-
-/* Screens fill what is left of the viewport under the rail. */
-.screen-min-h {
-  min-height: calc(100dvh - var(--top-rail-height));
 }
 
 * {
   box-sizing: border-box;
 }
 
-html {
+html, body {
+  height: 100dvh;
+  max-height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
   background: #FFF8ED;
 }
 
-body {
-  min-width: 320px;
-  min-height: 100dvh;
-  margin: 0;
+#root {
+  height: 100dvh;
+  max-height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-rail {
+  height: var(--top-rail-height);
+  min-height: var(--top-rail-height);
+  max-height: var(--top-rail-height);
+  padding-top: max(0.25rem, env(safe-area-inset-top));
+  padding-bottom: 0.25rem;
+}
+
+@media (max-width: 520px) {
+  .top-rail-title,
+  .read-aloud-label {
+    display: none;
+  }
+
+  .top-rail [aria-pressed] {
+    width: 2.5rem;
+    padding-inline: 0;
+    justify-content: center;
+  }
+}
+
+/* Screens fill exactly what is left of the viewport under the rail without scrollbars. */
+.screen-min-h {
+  height: calc(100dvh - var(--top-rail-height));
+  max-height: calc(100dvh - var(--top-rail-height));
+  overflow: hidden;
 }
 
 .safe-copy {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.safe-player-screen {
+  height: calc(100dvh - var(--top-rail-height));
+  max-height: calc(100dvh - var(--top-rail-height));
+  overflow: hidden;
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
 }
 
 .safe-player-screen p,
@@ -68,19 +118,17 @@ body {
   overflow-wrap: anywhere;
 }
 
-.safe-player-screen {
-  padding-top: max(1.25rem, env(safe-area-inset-top));
-  padding-right: max(1.25rem, env(safe-area-inset-right));
-  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-  padding-left: max(1.25rem, env(safe-area-inset-left));
+.safe-player-screen .text-xs {
+  font-size: 1rem;
 }
 
-/* Vertical centring that still scrolls when the content is taller than the
-   viewport. place-items-center clips the top of tall cards on short phones. */
+/* Vertical centering that stays contained within the viewport */
 .centre-column {
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - var(--top-rail-height));
+  height: calc(100dvh - var(--top-rail-height));
+  max-height: calc(100dvh - var(--top-rail-height));
+  overflow: hidden;
 }
 
 .centre-column > * {
@@ -95,16 +143,15 @@ a {
 }
 
 /*
- * Press model, per Part 3.3: an element compresses into its own shadow on
- * press. Pointer devices get a primed state (shadow pulls in, outline deepens)
- * with no movement and no scaling. Touch devices get the press only.
+ * Press model: an element compresses into its hard offset shadow on press.
+ * Tactile, immediate neo-brutalist interaction.
  */
 .press,
 .press-sm {
   transition:
-    translate 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 160ms ease;
+    translate 140ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 140ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 140ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -125,63 +172,60 @@ a {
 }
 
 .press:active:not(:disabled):not([aria-disabled='true']) {
-  translate: 5px 5px;
+  translate: 4px 4px;
   box-shadow: none;
 }
 
 .press-sm:active:not(:disabled):not([aria-disabled='true']) {
-  translate: 3px 3px;
+  translate: 2px 2px;
   box-shadow: none;
 }
 
-/* An element already compressed by its own selected state stays compressed. */
+/* An element already compressed by its selected state */
 .press-held {
-  translate: 5px 5px;
+  translate: 4px 4px;
   box-shadow: none;
 }
 
 .press-held-sm {
-  translate: 3px 3px;
+  translate: 2px 2px;
   box-shadow: none;
 }
 
-/* The countdown docks to the bottom of the screen so a long headline can never
-   push it out of view, and never lands on top of the host control bar. */
+/* The countdown docks cleanly without pushing parent layouts out of view */
 .countdown-dock {
   position: sticky;
   z-index: 10;
   bottom: 0;
-  margin-top: 1.5rem;
+  margin-top: auto;
   border-top: 3px solid #1A1A1A;
   background: #FFF8ED;
-  padding-top: 0.75rem;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-top: 0.35rem;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
 }
 
-.host-screen .countdown-dock,
-.solo-host .countdown-dock {
+.host-screen .countdown-dock {
   bottom: var(--host-control-height);
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
 }
 
 .solo-host .countdown-dock {
   bottom: 0;
+  padding-bottom: 0.5rem;
 }
 
 .host-frame {
-  padding-bottom: calc(var(--host-control-height) + 0.25rem);
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  padding-bottom: calc(var(--host-control-height) + 0.15rem);
 }
 
 .host-control {
+  height: var(--host-control-height);
   min-height: var(--host-control-height);
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-}
-
-/* The host control bar is operated at arm's length, not read across the room. */
-@media (min-width: 1600px) {
-  .host-control button {
-    font-size: 2rem;
-  }
+  max-height: var(--host-control-height);
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom));
 }
 
 .dot-grid {
@@ -190,49 +234,112 @@ a {
   background-size: 24px 24px;
 }
 
-/* The recap renders at a fixed export width so the downloaded PNG is composed
-   the same way on a phone as on a 1080p host, then scales down for preview. */
+.ambient-dot-grid {
+  position: relative;
+  isolation: isolate;
+  background: #FFF8ED;
+}
+
+.ambient-dot-grid::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  inset: -16px;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='2' cy='2' r='1.25' fill='%231A1A1A'/%3E%3C/svg%3E");
+  background-size: 24px 24px;
+  animation: dot-drift 20s ease-in-out infinite;
+}
+
+.menu-topbar {
+  position: relative;
+  z-index: 5;
+  padding-top: max(0.2rem, env(safe-area-inset-top));
+}
+
+.brand-mark {
+  overflow: visible;
+  filter: drop-shadow(4px 4px 0 #1A1A1A);
+}
+
+.brand-lockup > span {
+  text-shadow: 4px 4px 0 #FFC53D;
+  text-wrap: nowrap;
+}
+
+.menu-hero {
+  max-width: min(100%, 62rem);
+}
+
+.how-to-scroll {
+  height: calc(100dvh - var(--top-rail-height));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The recap renders at a fixed export width for the downloaded PNG */
 .recap-export {
   width: 1080px;
   transform-origin: top left;
 }
 
-.ticket-turn {
-  animation: ticket-turn 900ms steps(8, end) infinite;
-}
-
 .game-screen {
-  animation: curtain-pull 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: curtain-pull var(--transition-medium) cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .reveal-banner {
-  animation: reveal-rise 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: reveal-rise 200ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .reaction-bubble {
-  animation: reaction-float 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: reaction-float 2.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes ticket-turn {
-  to {
-    transform: rotate(360deg);
-  }
+.streak-pop {
+  animation: streak-bounce 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.lobby-avatar-in {
+  animation: avatar-arrive 450ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.leaderboard-entry {
+  animation: leaderboard-slide 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.podium-reveal {
+  animation: podium-rise 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.toast-callout {
+  animation: toast-in var(--transition-medium) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes dot-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.15; }
+  50% { transform: translate3d(4px, -4px, 0); opacity: 0.25; }
 }
 
 @keyframes curtain-pull {
   from {
-    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes reveal-rise {
   from {
-    transform: translateY(24px);
+    opacity: 0;
+    transform: translateY(16px);
   }
   to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
@@ -240,15 +347,51 @@ a {
 @keyframes reaction-float {
   0% {
     opacity: 0;
-    transform: translateY(24px) scale(0.8) rotate(-4deg);
+    transform: translateY(20px) scale(0.7) rotate(-5deg);
   }
-  18% {
+  15% {
     opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
-    transform: translateY(-42dvh) scale(1.12) rotate(5deg);
+    transform: translateY(-40dvh) scale(1.1) rotate(6deg);
   }
+}
+
+@keyframes streak-bounce {
+  0% {
+    transform: scale(0.75);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes avatar-arrive {
+  0% { opacity: 0; transform: translateY(10px) scale(0.75); }
+  65% { opacity: 1; transform: translateY(-3px) scale(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes leaderboard-slide {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes podium-rise {
+  from { opacity: 0; transform: translateY(22px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -259,5 +402,10 @@ a {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .ambient-dot-grid::before {
+    animation: none !important;
+    transform: none !important;
   }
 }
